@@ -8,4 +8,6 @@ type Record struct {
 	UpdatedAt  time.Time `json:"updated_at"`
 	PlayerID   string    `type:"uuid"`
 	TrackID    string
+	Player     Player
+	Track      Track
 }
