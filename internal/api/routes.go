@@ -1,26 +1,40 @@
 package api
 
 import (
-	"example/pvm-backend/internal/models"
+	"example/pvm-backend/internal/database"
+	"example/pvm-backend/internal/services"
+	"example/pvm-backend/internal/transport/handlers"
 
 	"github.com/gin-gonic/gin"
-	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
 
 type Routes struct {
+	*gin.Engine
+	DB *gorm.DB
 }
 
-func (r Routes) InitRoutes() {
-	router := gin.Default()
-	dsn := "host=localhost user=gorm password=gorm dbname=gorm port=5432 sslmode=disable TimeZone=Europe/Paris"
-	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
-	if err != nil {
-		panic("failed to connect database")
-	}
+func (r *Routes) InitRoutes() {
 
-	db.AutoMigrate(&models.Mappack{}, &models.Track{}, &models.Record{}, models.Player{})
+	trackRepository := &database.TrackRepository{DB: r.DB}
+	trackService := &services.TrackService{TrackRepository: trackRepository}
+	trackHandler := &handlers.TrackHandler{TrackService: trackService}
 
-	router.POST("/")
-	router.Run("localhost:8080")
+	playerRepository := &database.PlayerRepository{DB: r.DB}
+	playerService := &services.PlayerService{PlayerRepository: playerRepository}
+	playerHandler := &handlers.PlayerHandler{PlayerService: playerService}
+
+	mappackRepository := &database.MappackRepository{DB: r.DB}
+	mappackService := &services.MappackService{MappackRepository: mappackRepository}
+	mappackHandler := &handlers.MappackHandler{MappackService: mappackService}
+
+	recordRepository := &database.RecordRepository{DB: r.DB}
+	recordService := &services.RecordService{RecordRepository: recordRepository}
+	recordHandler := &handlers.RecordHandler{RecordService: recordService}
+
+	r.POST("/tracks", trackHandler.Create)
+	r.POST("/players", playerHandler.Create)
+	r.POST("/mappacks", mappackHandler.Create)
+	r.POST("/records", recordHandler.Create)
+	r.Run("localhost:8080")
 }

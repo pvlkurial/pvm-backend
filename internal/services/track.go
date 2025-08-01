@@ -8,9 +8,13 @@ import (
 )
 
 type TrackService struct {
-	trackRepository *database.TrackRepository
+	TrackRepository *database.TrackRepository
 }
 
 func (t *TrackService) Create(track *models.Track) *gorm.DB {
-	return t.trackRepository.Create(track)
+	return t.TrackRepository.Create(track)
+}
+
+func (t *TrackService) GetById(track *models.Track, id string) *gorm.DB {
+	return t.TrackRepository.GetById(track, id)
 }

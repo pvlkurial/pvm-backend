@@ -30,5 +30,28 @@ func (t *TrackHandler) Create(c *gin.Context) {
 	} else {
 		c.String(http.StatusOK, "Creation Succesful")
 	}
+}
 
+func (t *TrackHandler) GetById(c *gin.Context) {
+	id := c.Param("id")
+	track := models.Track{}
+	result := t.TrackService.GetById(&track, id)
+	if result.Error != nil {
+		fmt.Printf("Error occured while getting a Track by id: %s", result.Error)
+		c.String(http.StatusInternalServerError, "Internal Server Error")
+	} else {
+		c.JSON(http.StatusOK, track)
+	}
+}
+
+func (t *TrackHandler) GetByMappackId(c *gin.Context) {
+	id := c.Param("id")
+	track := models.Track{}
+	result := t.TrackService.GetByMappackId(&track, id)
+	if result.Error != nil {
+		fmt.Printf("Error occured while getting a Track by id: %s", result.Error)
+		c.String(http.StatusInternalServerError, "Internal Server Error")
+	} else {
+		c.JSON(http.StatusOK, track)
+	}
 }

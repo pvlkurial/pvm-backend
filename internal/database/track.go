@@ -7,9 +7,13 @@ import (
 )
 
 type TrackRepository struct {
-	db *gorm.DB
+	DB *gorm.DB
 }
 
 func (t *TrackRepository) Create(track *models.Track) *gorm.DB {
-	return t.db.Create(&track)
+	return t.DB.Create(&track)
+}
+
+func (t *TrackRepository) GetById(track *models.Track, id string) *gorm.DB {
+	return t.DB.First(track).Where("ID = ?", id)
 }
