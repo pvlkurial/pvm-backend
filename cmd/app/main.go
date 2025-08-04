@@ -17,9 +17,16 @@ func main() {
 	if err != nil {
 		panic("failed to connect database")
 	}
+	// db.Migrator().DropTable(&models.Mappack{}, &models.Track{}, &models.Record{}, models.Player{},
+	// 	models.MappackTrack{}, models.TimeGoal{}, models.TimeGoalMappackTrack{})
+	db.AutoMigrate(&models.TimeGoalMappackTrack{})
+	db.AutoMigrate(&models.Mappack{})
 
-	db.AutoMigrate(&models.Mappack{}, &models.Track{}, &models.Record{}, models.Player{})
-
+	db.AutoMigrate(&models.MappackTrack{})
+	db.AutoMigrate(&models.Track{})
+	db.AutoMigrate(&models.Record{})
+	db.AutoMigrate(&models.Player{})
+	db.AutoMigrate(&models.TimeGoal{})
 	r := api.Routes{router, db}
 	r.InitRoutes()
 }

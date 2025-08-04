@@ -33,8 +33,16 @@ func (r *Routes) InitRoutes() {
 	recordHandler := &handlers.RecordHandler{RecordService: recordService}
 
 	r.POST("/tracks", trackHandler.Create)
+	r.GET("/tracks/:id", trackHandler.GetById)
+
 	r.POST("/players", playerHandler.Create)
+
 	r.POST("/mappacks", mappackHandler.Create)
+	r.GET("/mappacks", mappackHandler.GetAll)
+	r.GET("/mappacks/:id", mappackHandler.GetById)
+	r.GET("/mappacks/:id/tracks", trackHandler.GetByMappackId)
+	r.POST("/mappacks/:mappack_id/add/:track_id", trackHandler.AddTrackToMappack)
+
 	r.POST("/records", recordHandler.Create)
 	r.Run("localhost:8080")
 }

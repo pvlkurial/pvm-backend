@@ -31,3 +31,26 @@ func (t *MappackHandler) Create(c *gin.Context) {
 		c.String(http.StatusOK, "Creation Succesful")
 	}
 }
+
+func (t *MappackHandler) GetById(c *gin.Context) {
+	id := c.Param("id")
+	mappack := models.Mappack{}
+	result := t.MappackService.GetById(&mappack, id)
+	if result.Error != nil {
+		fmt.Printf("Error occured while getting a Mappack by id: %s", result.Error)
+		c.String(http.StatusInternalServerError, "Internal Server Error")
+	} else {
+		c.JSON(http.StatusOK, mappack)
+	}
+}
+
+func (t *MappackHandler) GetAll(c *gin.Context) {
+	mappacks := []models.Mappack{}
+	result := t.MappackService.GetAll(&mappacks)
+	if result.Error != nil {
+		fmt.Printf("Error occured while getting Mappacks: %s", result.Error)
+		c.String(http.StatusInternalServerError, "Internal Server Error")
+	} else {
+		c.JSON(http.StatusOK, mappacks)
+	}
+}

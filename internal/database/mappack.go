@@ -13,3 +13,10 @@ type MappackRepository struct {
 func (t *MappackRepository) Create(mappack *models.Mappack) *gorm.DB {
 	return t.DB.Create(&mappack)
 }
+func (t *MappackRepository) GetById(mappack *models.Mappack, id string) *gorm.DB {
+	return t.DB.First(mappack).Where("ID = ?", id)
+}
+
+func (t *MappackRepository) GetAll(mappacks *[]models.Mappack) *gorm.DB {
+	return t.DB.Find(mappacks)
+}

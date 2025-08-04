@@ -7,7 +7,7 @@ type Record struct {
 	RecordTime int       `json:"record_time"`
 	UpdatedAt  time.Time `json:"updated_at"`
 	PlayerID   string    `type:"uuid"`
-	TrackID    string
+	TrackID    string    `json:"track_id"`
 	Player     Player
 	Track      Track
 }

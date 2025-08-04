@@ -18,3 +18,15 @@ func (t *TrackService) Create(track *models.Track) *gorm.DB {
 func (t *TrackService) GetById(track *models.Track, id string) *gorm.DB {
 	return t.TrackRepository.GetById(track, id)
 }
+
+func (t *TrackService) GetByMappackId(tracks *[]models.Track, id string) *gorm.DB {
+	return t.TrackRepository.GetByMappackId(tracks, id)
+}
+
+func (t *TrackService) AddTrackToMappack(trackId string, mappackId string) *gorm.DB {
+	mappackTrack := models.MappackTrack{
+		MappackID: mappackId,
+		TrackID:   trackId,
+	}
+	return t.TrackRepository.AddTrackToMappack(&mappackTrack)
+}

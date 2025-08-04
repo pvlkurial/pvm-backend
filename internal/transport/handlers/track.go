@@ -46,12 +46,26 @@ func (t *TrackHandler) GetById(c *gin.Context) {
 
 func (t *TrackHandler) GetByMappackId(c *gin.Context) {
 	id := c.Param("id")
-	track := models.Track{}
-	result := t.TrackService.GetByMappackId(&track, id)
+	tracks := []models.Track{}
+	result := t.TrackService.GetByMappackId(&tracks, id)
 	if result.Error != nil {
-		fmt.Printf("Error occured while getting a Track by id: %s", result.Error)
+		fmt.Printf("Error occured while getting a Tracks from a mappack by id: %s", result.Error)
 		c.String(http.StatusInternalServerError, "Internal Server Error")
 	} else {
-		c.JSON(http.StatusOK, track)
+		c.JSON(http.StatusOK, tracks)
+	}
+}
+
+func (t *TrackHandler) AddTrackToMappack(c *gin.Context) {
+	trackId := c.Param("track_id")
+	mappackId := c.Param("mappack_id")
+
+	result := t.TrackService.AddTrackToMappack(trackId, mappackId)
+
+	if result.Error != nil {
+		fmt.Printf("Error occured while creating a Track: %s", result.Error)
+		c.String(http.StatusInternalServerError, "Internal Server Error")
+	} else {
+		c.String(http.StatusOK, "Added track to mappack succesfully")
 	}
 }

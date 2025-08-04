@@ -14,3 +14,10 @@ type MappackService struct {
 func (t *MappackService) Create(mappack *models.Mappack) *gorm.DB {
 	return t.MappackRepository.Create(mappack)
 }
+
+func (t *MappackService) GetById(mappack *models.Mappack, id string) *gorm.DB {
+	return t.MappackRepository.GetById(mappack, id)
+}
+func (t *MappackService) GetAll(mappacks *[]models.Mappack) *gorm.DB {
+	return t.MappackRepository.GetAll(mappacks)
+}
