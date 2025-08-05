@@ -24,3 +24,9 @@ func (t *MappackService) GetAll(mappacks *[]models.Mappack) *gorm.DB {
 func (t *MappackService) CreateMappackTimeGoal(timegoal *models.TimeGoal) *gorm.DB {
 	return t.MappackRepository.CreateMappackTimeGoal(timegoal)
 }
+func (t *MappackService) GetAllMappackTimeGoals(mappackId string, timegoals *[]models.TimeGoal) *gorm.DB {
+	return t.MappackRepository.GetAllMappackTimeGoals(mappackId, timegoals)
+}
+func (t *MappackService) RemoveTimeGoalFromMappack(id string) *gorm.DB {
+	return t.MappackRepository.RemoveTimeGoalFromMappack(id)
+}

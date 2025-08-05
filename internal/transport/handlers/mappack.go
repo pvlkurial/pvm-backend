@@ -75,3 +75,28 @@ func (t *MappackHandler) CreateMappackTimeGoal(c *gin.Context) {
 		c.String(http.StatusOK, "Creation Succesful")
 	}
 }
+
+func (t *MappackHandler) GetAllMappackTimeGoals(c *gin.Context) {
+	mappackId := c.Param("id")
+	timegoals := []models.TimeGoal{}
+	result := t.MappackService.GetAllMappackTimeGoals(mappackId, &timegoals)
+	if result.Error != nil {
+		fmt.Printf("Error occured while getting TimeGoals of a mappack: %s", result.Error)
+		c.String(http.StatusInternalServerError, "Internal Server Error")
+	} else {
+		c.JSON(http.StatusOK, timegoals)
+	}
+}
+
+func (t *MappackHandler) RemoveTimeGoalFromMappack(c *gin.Context) {
+	id := c.Param("id")
+
+	result := t.MappackService.RemoveTimeGoalFromMappack(id)
+
+	if result.Error != nil {
+		fmt.Printf("Error occured while removing a Timegoal from a mappack: %s", result.Error)
+		c.String(http.StatusInternalServerError, "Internal Server Error")
+	} else {
+		c.String(http.StatusOK, "Removed timegoal from a mappack succesfully")
+	}
+}
