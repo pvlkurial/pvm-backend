@@ -34,3 +34,7 @@ func (t *TrackService) AddTrackToMappack(trackId string, mappackId string) *gorm
 func (t *TrackService) RemoveTrackFromMappack(trackId string, mappackId string) *gorm.DB {
 	return t.TrackRepository.RemoveTrackFromMappack(trackId, mappackId)
 }
+
+func (t *TrackService) CreateTimeGoalsForTrack(timegoals *[]models.TimeGoalMappackTrack) *gorm.DB {
+	return t.TrackRepository.CreateTimeGoalsForTrack(timegoals)
+}

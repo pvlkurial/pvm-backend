@@ -83,3 +83,22 @@ func (t *TrackHandler) RemoveTrackFromMappack(c *gin.Context) {
 		c.String(http.StatusOK, "Removed track to mappack succesfully")
 	}
 }
+
+func (t *TrackHandler) CreateTimeGoalsForTrack(c *gin.Context) {
+	var timegoals []models.TimeGoalMappackTrack
+
+	err := c.ShouldBind(&timegoals)
+	if err != nil {
+		fmt.Printf("Error occured while binding timegoals during creation/adding: %s", err)
+		c.String(http.StatusInternalServerError, "Internal Server Error")
+	}
+
+	result := t.TrackService.CreateTimeGoalsForTrack(&timegoals)
+
+	if result.Error != nil {
+		fmt.Printf("Error occured while creating a timegoal: %s", err)
+		c.String(http.StatusInternalServerError, "Internal Server Error")
+	} else {
+		c.String(http.StatusOK, "Creation Succesful")
+	}
+}

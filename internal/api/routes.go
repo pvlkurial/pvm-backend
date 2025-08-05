@@ -40,6 +40,7 @@ func (r *Routes) InitRoutes() {
 	r.GET("/players", playerHandler.GetAll)
 
 	r.POST("/mappacks", mappackHandler.Create)
+	r.POST("/mappacks/:id/timegoal", mappackHandler.CreateMappackTimeGoal)
 	r.GET("/mappacks", mappackHandler.GetAll)
 	r.GET("/mappacks/:id", mappackHandler.GetById)
 	r.GET("/mappacks/:id/tracks", trackHandler.GetByMappackId)

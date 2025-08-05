@@ -35,6 +35,6 @@ func (t *TrackRepository) RemoveTrackFromMappack(trackId string, mappackId strin
 	return t.DB.Where("track_id = ?", trackId).Where("mappack_id = ?", mappackId).Delete(&models.MappackTrack{})
 }
 
-func (t *TrackRepository) CreateTimeGoalForTrack(timegoal *models.TimeGoalMappackTrack) *gorm.DB {
-	return t.DB.Create(timegoal)
+func (t *TrackRepository) CreateTimeGoalsForTrack(timegoals *[]models.TimeGoalMappackTrack) *gorm.DB {
+	return t.DB.Create(timegoals)
 }

@@ -54,3 +54,24 @@ func (t *MappackHandler) GetAll(c *gin.Context) {
 		c.JSON(http.StatusOK, mappacks)
 	}
 }
+
+func (t *MappackHandler) CreateMappackTimeGoal(c *gin.Context) {
+	mappackId := c.Param("id")
+	timegoal := models.TimeGoal{
+		MappackID: mappackId,
+	}
+	err := c.ShouldBind(&timegoal)
+	if err != nil {
+		fmt.Printf("Error occured while binding Mappack during creation: %s", err)
+		c.String(http.StatusInternalServerError, "Internal Server Error")
+	}
+
+	result := t.MappackService.CreateMappackTimeGoal(&timegoal)
+
+	if result.Error != nil {
+		fmt.Printf("Error occured while creating a TimeGoal: %s", err)
+		c.String(http.StatusInternalServerError, "Internal Server Error")
+	} else {
+		c.String(http.StatusOK, "Creation Succesful")
+	}
+}

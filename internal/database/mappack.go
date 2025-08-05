@@ -20,3 +20,6 @@ func (t *MappackRepository) GetById(mappack *models.Mappack, id string) *gorm.DB
 func (t *MappackRepository) GetAll(mappacks *[]models.Mappack) *gorm.DB {
 	return t.DB.Find(mappacks)
 }
+func (t *MappackRepository) CreateMappackTimeGoal(timegoal *models.TimeGoal) *gorm.DB {
+	return t.DB.Create(timegoal)
+}
