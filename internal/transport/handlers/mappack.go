@@ -33,7 +33,7 @@ func (t *MappackHandler) Create(c *gin.Context) {
 }
 
 func (t *MappackHandler) GetById(c *gin.Context) {
-	id := c.Param("id")
+	id := c.Param("mappack_id")
 	mappack := models.Mappack{}
 	result := t.MappackService.GetById(&mappack, id)
 	if result.Error != nil {
@@ -56,15 +56,14 @@ func (t *MappackHandler) GetAll(c *gin.Context) {
 }
 
 func (t *MappackHandler) CreateMappackTimeGoal(c *gin.Context) {
-	mappackId := c.Param("id")
-	timegoal := models.TimeGoal{
-		MappackID: mappackId,
-	}
+	mappackId := c.Param("mappack_id")
+	timegoal := models.TimeGoal{}
 	err := c.ShouldBind(&timegoal)
 	if err != nil {
-		fmt.Printf("Error occured while binding Mappack during creation: %s", err)
+		fmt.Printf("Error occured while binding Mappack during creation: %s", err.Error())
 		c.String(http.StatusInternalServerError, "Internal Server Error")
 	}
+	timegoal.MappackID = mappackId
 
 	result := t.MappackService.CreateMappackTimeGoal(&timegoal)
 
@@ -72,12 +71,12 @@ func (t *MappackHandler) CreateMappackTimeGoal(c *gin.Context) {
 		fmt.Printf("Error occured while creating a TimeGoal: %s", err)
 		c.String(http.StatusInternalServerError, "Internal Server Error")
 	} else {
-		c.String(http.StatusOK, "Creation Succesful")
+		c.JSON(http.StatusCreated, gin.H{"message": "Creation Successful", "data": timegoal})
 	}
 }
 
 func (t *MappackHandler) GetAllMappackTimeGoals(c *gin.Context) {
-	mappackId := c.Param("id")
+	mappackId := c.Param("mappack_id")
 	timegoals := []models.TimeGoal{}
 	result := t.MappackService.GetAllMappackTimeGoals(mappackId, &timegoals)
 	if result.Error != nil {
@@ -89,7 +88,7 @@ func (t *MappackHandler) GetAllMappackTimeGoals(c *gin.Context) {
 }
 
 func (t *MappackHandler) RemoveTimeGoalFromMappack(c *gin.Context) {
-	id := c.Param("id")
+	id := c.Param("timegoal_id")
 
 	result := t.MappackService.RemoveTimeGoalFromMappack(id)
 

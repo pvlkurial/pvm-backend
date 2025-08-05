@@ -45,7 +45,7 @@ func (t *TrackHandler) GetById(c *gin.Context) {
 }
 
 func (t *TrackHandler) GetByMappackId(c *gin.Context) {
-	id := c.Param("id")
+	id := c.Param("mappack_id")
 	tracks := []models.Track{}
 	result := t.TrackService.GetByMappackId(&tracks, id)
 	if result.Error != nil {

@@ -39,17 +39,19 @@ func (r *Routes) InitRoutes() {
 	r.POST("/players", playerHandler.Create)
 	r.GET("/players", playerHandler.GetAll)
 
-	r.POST("/mappacks/:id/timegoals", mappackHandler.CreateMappackTimeGoal)
-	r.GET("/mappacks/:id/timegoals", mappackHandler.GetAllMappackTimeGoals)
+	r.POST("/mappacks/:mappack_id/timegoals", mappackHandler.CreateMappackTimeGoal)
+	r.GET("/mappacks/:mappack_id/timegoals", mappackHandler.GetAllMappackTimeGoals)
 	r.DELETE("/mappacks/:mappack_id/timegoals/:timegoal_id", mappackHandler.RemoveTimeGoalFromMappack)
 
 	r.POST("/mappacks", mappackHandler.Create)
 	r.GET("/mappacks", mappackHandler.GetAll)
-	r.GET("/mappacks/:id", mappackHandler.GetById)
+	r.GET("/mappacks/:mappack_id", mappackHandler.GetById)
 
-	r.GET("/mappacks/:id/tracks", trackHandler.GetByMappackId)
+	r.GET("/mappacks/:mappack_id/tracks", trackHandler.GetByMappackId)
 	r.POST("/mappacks/:mappack_id/tracks/:track_id", trackHandler.AddTrackToMappack)
 	r.DELETE("/mappacks/:mappack_id/tracks/:track_id", trackHandler.RemoveTrackFromMappack)
+
+	r.POST("/mappacks/:mappack_id/tracks/:track_id/timegoals/:timegoal_id", trackHandler.CreateTimeGoalsForTrack)
 
 	r.POST("/records", recordHandler.Create)
 	r.Run("localhost:8080")
