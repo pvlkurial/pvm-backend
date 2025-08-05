@@ -32,3 +32,14 @@ func (t *PlayerHandler) Create(c *gin.Context) {
 	}
 
 }
+
+func (t *PlayerHandler) GetAll(c *gin.Context) {
+	players := []models.Player{}
+	result := t.PlayerService.GetAll(&players)
+	if result.Error != nil {
+		fmt.Printf("Error occured while getting Players: %s", result.Error)
+		c.String(http.StatusInternalServerError, "Internal Server Error")
+	} else {
+		c.JSON(http.StatusOK, players)
+	}
+}

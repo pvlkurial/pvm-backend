@@ -69,3 +69,17 @@ func (t *TrackHandler) AddTrackToMappack(c *gin.Context) {
 		c.String(http.StatusOK, "Added track to mappack succesfully")
 	}
 }
+
+func (t *TrackHandler) RemoveTrackFromMappack(c *gin.Context) {
+	trackId := c.Param("track_id")
+	mappackId := c.Param("mappack_id")
+
+	result := t.TrackService.RemoveTrackFromMappack(trackId, mappackId)
+
+	if result.Error != nil {
+		fmt.Printf("Error occured while removing a Track from mappack: %s", result.Error)
+		c.String(http.StatusInternalServerError, "Internal Server Error")
+	} else {
+		c.String(http.StatusOK, "Removed track to mappack succesfully")
+	}
+}

@@ -14,3 +14,6 @@ type PlayerService struct {
 func (t *PlayerService) Create(player *models.Player) *gorm.DB {
 	return t.PlayerRepository.Create(player)
 }
+func (t *PlayerService) GetAll(players *[]models.Player) *gorm.DB {
+	return t.PlayerRepository.GetAll(players)
+}

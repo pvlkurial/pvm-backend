@@ -34,14 +34,17 @@ func (r *Routes) InitRoutes() {
 
 	r.POST("/tracks", trackHandler.Create)
 	r.GET("/tracks/:id", trackHandler.GetById)
+	r.DELETE("/tracks/:id")
 
 	r.POST("/players", playerHandler.Create)
+	r.GET("/players", playerHandler.GetAll)
 
 	r.POST("/mappacks", mappackHandler.Create)
 	r.GET("/mappacks", mappackHandler.GetAll)
 	r.GET("/mappacks/:id", mappackHandler.GetById)
 	r.GET("/mappacks/:id/tracks", trackHandler.GetByMappackId)
-	r.POST("/mappacks/:mappack_id/add/:track_id", trackHandler.AddTrackToMappack)
+	r.POST("/mappacks/:mappack_id/tracks/:track_id", trackHandler.AddTrackToMappack)
+	r.DELETE("/mappacks/:mappack_id/tracks/:track_id", trackHandler.RemoveTrackFromMappack)
 
 	r.POST("/records", recordHandler.Create)
 	r.Run("localhost:8080")

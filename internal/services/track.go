@@ -30,3 +30,7 @@ func (t *TrackService) AddTrackToMappack(trackId string, mappackId string) *gorm
 	}
 	return t.TrackRepository.AddTrackToMappack(&mappackTrack)
 }
+
+func (t *TrackService) RemoveTrackFromMappack(trackId string, mappackId string) *gorm.DB {
+	return t.TrackRepository.RemoveTrackFromMappack(trackId, mappackId)
+}

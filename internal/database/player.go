@@ -13,3 +13,7 @@ type PlayerRepository struct {
 func (t *PlayerRepository) Create(player *models.Player) *gorm.DB {
 	return t.DB.Create(&player)
 }
+
+func (t *PlayerRepository) GetAll(players *[]models.Player) *gorm.DB {
+	return t.DB.Find(players)
+}
