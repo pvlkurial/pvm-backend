@@ -4,9 +4,6 @@ import (
 	"example/pvm-backend/internal/database"
 	"example/pvm-backend/internal/services"
 	"example/pvm-backend/internal/transport/handlers"
-	"fmt"
-	"os"
-	"time"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
@@ -27,12 +24,6 @@ func (r *Routes) InitRoutes() {
 	trackService := &services.TrackService{TrackRepository: trackRepository}
 	trackHandler := &handlers.TrackHandler{TrackService: trackService, TokenManager: &tokenManager}
 
-	fmt.Println("DEBUG")
-	fmt.Println(tokenManager.AccessToken)
-	//tokenManager.AccessToken = tokenManager.GetToken()
-	//fmt.Println("DEBUG")
-	//fmt.Println(tokenManager.AccessToken)
-
 	playerRepository := &database.PlayerRepository{DB: r.DB}
 	playerService := &services.PlayerService{PlayerRepository: playerRepository}
 	playerHandler := &handlers.PlayerHandler{PlayerService: playerService}
@@ -52,45 +43,28 @@ func (r *Routes) InitRoutes() {
 		AllowCredentials: true,
 	}))
 
-	jwtConfig := auth.JWTConfig{
-		SecretKey:     "",
-		TokenDuration: 24 * time.Hour,
-	}
+	r.POST("/tracks", trackHandler.Create)
+	r.GET("/tracks/:id", trackHandler.GetById)
+	r.DELETE("/tracks/:id")
 
-	oauthConfig := handlers.OAuthConfig{
-		ClientID:     os.Getenv("TRACKMANIA_CLIENT_ID"),
-		ClientSecret: os.Getenv("TRACKMANIA_CLIENT_SECRET"),
-		RedirectURI:  os.Getenv("TRACKMANIA_REDIRECT_URI"),
-	}
+	r.POST("/players", playerHandler.Create)
+	r.GET("/players", playerHandler.GetAll)
 
-	r.GET("/auth/login", handlers.HandleTrackmaniaLogin(oauthConfig))
-	r.GET("/auth/callback", handlers.HandleTrackmaniaCallback(r.DB, oauthConfig, jwtConfig))
+	r.POST("/mappacks/:mappack_id/timegoals", mappackHandler.CreateMappackTimeGoal)
+	r.GET("/mappacks/:mappack_id/timegoals", mappackHandler.GetAllMappackTimeGoals)
+	r.DELETE("/mappacks/:mappack_id/timegoals/:timegoal_id", mappackHandler.RemoveTimeGoalFromMappack)
 
-	r.Use(auth.RequireAuth(r.DB, jwtConfig))
-	{
-		r.GET("/api/profile", handlers.HandleGetProfile)
-		r.POST("/tracks", trackHandler.Create)
-		r.GET("/tracks/:id", trackHandler.GetById)
-		r.DELETE("/tracks/:id")
+	r.POST("/mappacks", mappackHandler.Create)
+	r.GET("/mappacks", mappackHandler.GetAll)
+	r.GET("/mappacks/:mappack_id", mappackHandler.GetById)
 
-		r.POST("/players", playerHandler.Create)
-		r.GET("/players", playerHandler.GetAll)
+	r.GET("/mappacks/:mappack_id/tracks", trackHandler.GetByMappackId)
+	r.POST("/mappacks/:mappack_id/tracks/:track_id", trackHandler.AddTrackToMappack)
+	r.DELETE("/mappacks/:mappack_id/tracks/:track_id", trackHandler.RemoveTrackFromMappack)
 
-		r.POST("/mappacks/:mappack_id/timegoals", mappackHandler.CreateMappackTimeGoal)
-		r.GET("/mappacks/:mappack_id/timegoals", mappackHandler.GetAllMappackTimeGoals)
-		r.DELETE("/mappacks/:mappack_id/timegoals/:timegoal_id", mappackHandler.RemoveTimeGoalFromMappack)
+	r.POST("/mappacks/:mappack_id/tracks/:track_id/timegoals/:timegoal_id", trackHandler.CreateTimeGoalsForTrack)
 
-		r.POST("/mappacks", mappackHandler.Create)
-		r.GET("/mappacks", mappackHandler.GetAll)
-		r.GET("/mappacks/:mappack_id", mappackHandler.GetById)
+	r.POST("/records", recordHandler.Create)
 
-		r.GET("/mappacks/:mappack_id/tracks", trackHandler.GetByMappackId)
-		r.POST("/mappacks/:mappack_id/tracks/:track_id", trackHandler.AddTrackToMappack)
-		r.DELETE("/mappacks/:mappack_id/tracks/:track_id", trackHandler.RemoveTrackFromMappack)
-
-		r.POST("/mappacks/:mappack_id/tracks/:track_id/timegoals/:timegoal_id", trackHandler.CreateTimeGoalsForTrack)
-
-		r.POST("/records", recordHandler.Create)
-	}
 	r.Run("localhost:8080")
 }
