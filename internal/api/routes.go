@@ -4,6 +4,7 @@ import (
 	"example/pvm-backend/internal/database"
 	"example/pvm-backend/internal/services"
 	"example/pvm-backend/internal/transport/handlers"
+	"fmt"
 
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
@@ -16,9 +17,18 @@ type Routes struct {
 
 func (r *Routes) InitRoutes() {
 
+	tokenManager := handlers.TokenManager{}
+	tokenManager.AccessToken = ""
+
 	trackRepository := &database.TrackRepository{DB: r.DB}
 	trackService := &services.TrackService{TrackRepository: trackRepository}
-	trackHandler := &handlers.TrackHandler{TrackService: trackService}
+	trackHandler := &handlers.TrackHandler{TrackService: trackService, TokenManager: &tokenManager}
+
+	fmt.Println("DEBUG")
+	fmt.Println(tokenManager.AccessToken)
+	//tokenManager.AccessToken = tokenManager.GetToken()
+	//fmt.Println("DEBUG")
+	//fmt.Println(tokenManager.AccessToken)
 
 	playerRepository := &database.PlayerRepository{DB: r.DB}
 	playerService := &services.PlayerService{PlayerRepository: playerRepository}

@@ -11,18 +11,21 @@ import (
 
 type TrackHandler struct {
 	TrackService *services.TrackService
+	TokenManager *TokenManager
 }
 
 func (t *TrackHandler) Create(c *gin.Context) {
-	track := models.Track{}
+	trackTemp := models.Track{}
 
-	err := c.ShouldBind(&track)
+	err := c.ShouldBind(&trackTemp)
+	fmt.Println("DEBUG TRACK ID:" + trackTemp.ID)
+	track := t.TokenManager.FetchTrackInfo(trackTemp.ID)
 	if err != nil {
 		fmt.Printf("Error occured while binding Track during creation: %s", err)
 		c.String(http.StatusInternalServerError, "Internal Server Error")
 	}
 
-	result := t.TrackService.Create(&track)
+	result := t.TrackService.Create(track)
 
 	if result.Error != nil {
 		fmt.Printf("Error occured while creating a Track: %s", err)
