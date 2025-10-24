@@ -62,9 +62,13 @@ func (r *Routes) InitRoutes() {
 	r.POST("/mappacks/:mappack_id/tracks/:track_id", trackHandler.AddTrackToMappack)
 	r.DELETE("/mappacks/:mappack_id/tracks/:track_id", trackHandler.RemoveTrackFromMappack)
 
-	r.POST("/mappacks/:mappack_id/tracks/:track_id/timegoals/:timegoal_id", trackHandler.CreateTimeGoalsForTrack)
+	r.POST("/mappacks/:mappack_id/tracks/:track_id/timegoals", trackHandler.CreateTimeGoalsForTrack)
+	r.GET("/mappacks/:mappack_id/tracks/:track_id/timegoals", trackHandler.GetTimeGoalsForTrack)
+	r.PATCH("/mappacks/:mappack_id/tracks/:track_id/timegoals", trackHandler.UpdateTimeGoalsForTrack)
 
 	r.POST("/records", recordHandler.Create)
+	r.POST("/tracks/track_id/records", recordHandler.GetByTrackId)
+	r.POST("/tracks/track_id/records/:player_id", recordHandler.GetPlayersRecordsForTrack)
 
 	r.Run("localhost:8080")
 }
