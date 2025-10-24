@@ -24,6 +24,7 @@ func (t *TrackHandler) Create(c *gin.Context) {
 		fmt.Printf("Error occured while binding Track during creation: %s", err)
 		c.String(http.StatusInternalServerError, "Internal Server Error")
 	}
+	fmt.Printf(track.MapType)
 
 	result := t.TrackService.Create(track)
 
@@ -31,12 +32,12 @@ func (t *TrackHandler) Create(c *gin.Context) {
 		fmt.Printf("Error occured while creating a Track: %s", err)
 		c.String(http.StatusInternalServerError, "Internal Server Error")
 	} else {
-		c.String(http.StatusOK, "Creation Succesful")
+		c.String(http.StatusOK, "Creation Succesful, %s", track)
 	}
 }
 
 func (t *TrackHandler) GetById(c *gin.Context) {
-	id := c.Param("id")
+	id := c.Param("track_id")
 	track := models.Track{}
 	result := t.TrackService.GetById(&track, id)
 	if result.Error != nil {

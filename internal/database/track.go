@@ -11,11 +11,11 @@ type TrackRepository struct {
 }
 
 func (t *TrackRepository) Create(track *models.Track) *gorm.DB {
-	return t.DB.Create(&track)
+	return t.DB.Save(track)
 }
 
 func (t *TrackRepository) GetById(track *models.Track, id string) *gorm.DB {
-	return t.DB.First(track).Where("ID = ?", id)
+	return t.DB.Where("ID = ?", id).First(track)
 }
 
 func (t *TrackRepository) GetByMappackId(tracks *[]models.Track, id string) *gorm.DB {

@@ -4,7 +4,7 @@ import "time"
 
 type Record struct {
 	ID         string    `json:"mapRecordId" gorm:"primaryKey"`
-	RecordTime int       `json:"-" gorm:"column:record_time"`
+	RecordTime int       `json:"score" gorm:"column:record_time"`
 	UpdatedAt  time.Time `json:"updatedAt" gorm:"column:updated_at"`
 	PlayerID   string    `json:"accountId" gorm:"type:uuid;column:player_id"`
 	TrackID    string    `json:"mapId" gorm:"type:uuid;column:track_id"`
@@ -14,8 +14,6 @@ type Record struct {
 	ZoneName   string    `json:"zoneName" gorm:"-"`
 	Position   int       `json:"position" gorm:"-"`
 	Timestamp  int64     `json:"timestamp" gorm:"-"`
-	// something simmiliar to Medal where number is reached timegoal.
-	TimeGoalAchieved int `json:"timeGoalAchieved" gorm:"-"`
 }
 
 type TrackRecordsResponse struct {

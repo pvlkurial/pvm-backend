@@ -11,7 +11,7 @@ type RecordRepository struct {
 }
 
 func (t *RecordRepository) Create(record *models.Record) *gorm.DB {
-	return t.DB.Create(&record)
+	return t.DB.Save(&record)
 }
 
 func (t *RecordRepository) GetById(record *models.Record, id string) *gorm.DB {

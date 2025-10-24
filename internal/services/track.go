@@ -46,3 +46,7 @@ func (t *TrackService) GetTimeGoalsForTrack(trackId string, mappackId string, ti
 func (t *TrackService) UpdateTimeGoalsForTrack(timegoals *[]models.TimeGoalMappackTrack) *gorm.DB {
 	return t.TrackRepository.UpdateTimeGoalsForTrack(timegoals)
 }
+
+func (t *TrackService) GetByUID(track *models.Track, uid string) *gorm.DB {
+	return t.TrackRepository.DB.Where("map_uid = ?", uid).First(track)
+}

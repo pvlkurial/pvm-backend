@@ -12,6 +12,7 @@ import (
 
 type TokenManager struct {
 	AccessToken      string
+	LiveAccessToken  string
 	RefreshToken     string
 	AccessExpiresIn  int
 	RefreshExpiresIn int
@@ -45,7 +46,7 @@ func fetchNadeoToken(audience string) (string, string, error) {
 	}
 	defer res.Body.Close()
 	if res.StatusCode != http.StatusOK {
-		fmt.Printf("failed to fetch track: status %d\n", res.StatusCode)
+		fmt.Printf("failed to fetch token: status %d\n", res.StatusCode)
 		return "", "", err
 	}
 	var tokenResponse struct {
@@ -69,16 +70,31 @@ func (t *TokenManager) GetToken() string {
 	}
 	return t.AccessToken
 }
+func (t *TokenManager) GetLiveServicesToken() string {
+	if t.LiveAccessToken == "" {
+		fmt.Println("FETCHING NEW LIVE TOKEN")
+		a, r, err := fetchNadeoToken("NadeoLiveServices")
+		t.LiveAccessToken = a
+		t.RefreshToken = r
+		if err != nil {
+			fmt.Print(err)
+			return ""
+		}
+	}
+	return t.LiveAccessToken
+}
 
 func (t *TokenManager) FetchTrackInfo(trackid string) *models.Track {
-	token := t.GetToken()
+	if t.AccessToken == "" {
+		t.AccessToken = t.GetToken()
+	}
 	req, err := http.NewRequest("GET", "https://prod.trackmania.core.nadeo.online/maps/"+trackid, nil)
 	fmt.Println("DEBUG FOR URL: " + "https://prod.trackmania.core.nadeo.online/maps/" + trackid)
 	if err != nil {
 		fmt.Println(err)
 		return nil
 	}
-	req.Header.Add("Authorization", "nadeo_v1 t="+token)
+	req.Header.Add("Authorization", "nadeo_v1 t="+t.AccessToken)
 	//req.Header.Add("User-Agent", os.Getenv("USER_AGENT"))
 	client := &http.Client{}
 	resp, err := client.Do(req)
@@ -101,4 +117,45 @@ func (t *TokenManager) FetchTrackInfo(trackid string) *models.Track {
 
 	track.ID = track.MapID
 	return track
+}
+
+func (t *TokenManager) FetchRecordsOfTrack(trackuid string) *[]models.Record {
+	if t.LiveAccessToken == "" {
+		t.LiveAccessToken = t.GetLiveServicesToken()
+	}
+	req, err := http.NewRequest("GET", utils.LeaderboardURL+trackuid+"/top?onlyWorld=true&length=5&offset=0/", nil)
+	if err != nil {
+		fmt.Println(err)
+		return nil
+	}
+	req.Header.Add("Authorization", "nadeo_v1 t="+t.LiveAccessToken)
+	//req.Header.Add("User-Agent", os.Getenv("USER_AGENT"))
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		fmt.Println(err)
+		return nil
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		fmt.Printf("failed to fetch records: status %d\n", resp.StatusCode)
+		return nil
+	}
+
+	var response models.TrackRecordsResponse
+	if err := json.NewDecoder(resp.Body).Decode(&response); err != nil {
+		fmt.Printf("failed to decode records: %v\n", err)
+		return nil
+	}
+
+	if len(response.Tops) == 0 {
+		fmt.Println("no tops data in response")
+		return &[]models.Record{}
+	}
+
+	records := response.Tops[0].Top
+
+	return &records
+
 }
