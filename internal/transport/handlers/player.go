@@ -43,3 +43,15 @@ func (t *PlayerHandler) GetAll(c *gin.Context) {
 		c.JSON(http.StatusOK, players)
 	}
 }
+
+func (t *PlayerHandler) GetById(c *gin.Context) {
+	id := c.Param("id")
+	player := models.Player{}
+	result := t.PlayerService.GetById(&player, id)
+	if result.Error != nil {
+		fmt.Printf("Error occured while getting a Player by id: %s", result.Error)
+		c.String(http.StatusInternalServerError, "Internal Server Error")
+	} else {
+		c.JSON(http.StatusOK, player)
+	}
+}

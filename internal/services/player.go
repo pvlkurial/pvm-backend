@@ -17,3 +17,11 @@ func (t *PlayerService) Create(player *models.Player) *gorm.DB {
 func (t *PlayerService) GetAll(players *[]models.Player) *gorm.DB {
 	return t.PlayerRepository.GetAll(players)
 }
+
+func (t *PlayerService) GetById(player *models.Player, id string) *gorm.DB {
+	return t.PlayerRepository.GetById(player, id)
+}
+
+func (t *PlayerService) Update(player *models.Player) *gorm.DB {
+	return t.PlayerRepository.Update(player)
+}

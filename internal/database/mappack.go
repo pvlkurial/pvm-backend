@@ -30,3 +30,10 @@ func (t *MappackRepository) GetAllMappackTimeGoals(mappackId string, timegoal *[
 func (t *MappackRepository) RemoveTimeGoalFromMappack(id string) *gorm.DB {
 	return t.DB.Where("id = ?", id).Delete(&models.TimeGoal{})
 }
+
+func (t *MappackRepository) UpdateMappackTimeGoals(timegoals *[]models.TimeGoal) *gorm.DB {
+	for _, timegoal := range *timegoals {
+		t.DB.Save(&timegoal)
+	}
+	return nil
+}

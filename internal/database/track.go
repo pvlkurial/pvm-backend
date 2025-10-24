@@ -38,3 +38,18 @@ func (t *TrackRepository) RemoveTrackFromMappack(trackId string, mappackId strin
 func (t *TrackRepository) CreateTimeGoalsForTrack(timegoals *[]models.TimeGoalMappackTrack) *gorm.DB {
 	return t.DB.Create(timegoals)
 }
+func (t *TrackRepository) GetTimeGoalsForTrack(trackId string, mappackId string, timegoals *[]models.TimeGoalMappackTrack) *gorm.DB {
+	var mappackTrack models.MappackTrack
+	res := t.DB.Select("id").Where("track_id = ?", trackId).Where("mappack_id = ?", mappackId).First(&mappackTrack)
+	if res != nil {
+		return t.DB.Where("mappack_track_id = ?", mappackTrack.ID).Find(timegoals)
+	}
+	return res
+}
+
+func (t *TrackRepository) UpdateTimeGoalsForTrack(timegoals *[]models.TimeGoalMappackTrack) *gorm.DB {
+	for _, timegoal := range *timegoals {
+		t.DB.Save(&timegoal)
+	}
+	return nil
+}

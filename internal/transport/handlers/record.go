@@ -32,3 +32,40 @@ func (t *RecordHandler) Create(c *gin.Context) {
 	}
 
 }
+
+func (t *RecordHandler) GetById(c *gin.Context) {
+	id := c.Param("id")
+	record := models.Record{}
+	result := t.RecordService.GetById(&record, id)
+	if result.Error != nil {
+		fmt.Printf("Error occured while getting a Record by id: %s", result.Error)
+		c.String(http.StatusInternalServerError, "Internal Server Error")
+	} else {
+		c.JSON(http.StatusOK, record)
+	}
+}
+
+func (t *RecordHandler) GetByTrackId(c *gin.Context) {
+	id := c.Param("track_id")
+	records := []models.Record{}
+	result := t.RecordService.GetByTrackId(&records, id)
+	if result.Error != nil {
+		fmt.Printf("Error occured while getting Records by Track id: %s", result.Error)
+		c.String(http.StatusInternalServerError, "Internal Server Error")
+	} else {
+		c.JSON(http.StatusOK, records)
+	}
+}
+
+func (t *RecordHandler) GetPlayersRecordsForTrack(c *gin.Context) {
+	trackId := c.Param("track_id")
+	playerId := c.Param("player_id")
+	records := []models.Record{}
+	result := t.RecordService.GetPlayersRecordsForTrack(trackId, playerId, &records)
+	if result.Error != nil {
+		fmt.Printf("Error occured while getting Player's Records for Track: %s", result.Error)
+		c.String(http.StatusInternalServerError, "Internal Server Error")
+	} else {
+		c.JSON(http.StatusOK, records)
+	}
+}

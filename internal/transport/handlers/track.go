@@ -105,3 +105,37 @@ func (t *TrackHandler) CreateTimeGoalsForTrack(c *gin.Context) {
 		c.String(http.StatusOK, "Creation Succesful")
 	}
 }
+
+func (t *TrackHandler) GetTimeGoalsForTrack(c *gin.Context) {
+	trackId := c.Param("track_id")
+	mappackId := c.Param("mappack_id")
+	var timegoals []models.TimeGoalMappackTrack
+
+	result := t.TrackService.GetTimeGoalsForTrack(trackId, mappackId, &timegoals)
+
+	if result.Error != nil {
+		fmt.Printf("Error occured while getting timegoals for track: %s", result.Error)
+		c.String(http.StatusInternalServerError, "Internal Server Error")
+	} else {
+		c.JSON(http.StatusOK, timegoals)
+	}
+}
+
+func (t *TrackHandler) UpdateTimeGoalsForTrack(c *gin.Context) {
+	var timegoals []models.TimeGoalMappackTrack
+
+	err := c.ShouldBind(&timegoals)
+	if err != nil {
+		fmt.Printf("Error occured while binding timegoals during update: %s", err)
+		c.String(http.StatusInternalServerError, "Internal Server Error")
+	}
+
+	result := t.TrackService.UpdateTimeGoalsForTrack(&timegoals)
+
+	if result != nil && result.Error != nil {
+		fmt.Printf("Error occured while updating timegoals for track: %s", result.Error)
+		c.String(http.StatusInternalServerError, "Internal Server Error")
+	} else {
+		c.String(http.StatusOK, "Update Succesful")
+	}
+}
