@@ -33,8 +33,9 @@ func (t *RecordRepository) GetPlayersRecordsForTrack(trackId string, playerId st
 	return t.DB.Where("track_id = ?", trackId).Where("player_id = ?", playerId).Find(records)
 }
 
-func (t *RecordRepository) GetTrackTimeGoalsTimes(trackId string, mappackId string, timegoals *[]models.TimeGoal, trackTimeGoals *[]models.TimeGoalMappackTrack) *gorm.DB {
-	t.DB.Where("mappack_id = ?", mappackId).Find(timegoals)
-	return t.DB.Where("mappack_id = ?", mappackId).Find(timegoals)
-	// TODO TRACKTIMEGOAL
+func (t *RecordRepository) GetTrackTimeGoalsTimes(mappackTrackId int, trackTimeGoals *[]models.TimeGoalMappackTrack) *gorm.DB {
+	return t.DB.
+		Preload("TimeGoal").
+		Where("mappack_track_id = ?", mappackTrackId).
+		Find(trackTimeGoals)
 }

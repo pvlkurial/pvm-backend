@@ -9,4 +9,5 @@ type TimeGoalMappackTrack struct {
 	MappackTrackID int `json:"mappack_track_id"`
 	Time           int `json:"time"`
 	UpdatedAt      time.Time
+	TimeGoal       TimeGoal `gorm:"foreignKey:TimeGoalID"`
 }

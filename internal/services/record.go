@@ -64,14 +64,30 @@ func (t *RecordService) GetTrackWithRecords(track *dtos.TrackInMappackDto, mappa
 	if err := t.TrackRepository.GetById(&trackInDb, trackId).Error; err != nil {
 		return err
 	}
+
 	var records []models.Record
 	if err := t.RecordRepository.GetByTrackId(&records, trackId).Error; err != nil {
 		return err
 	}
+
 	var mappackTrack models.MappackTrack
 	if err := t.TrackRepository.GetTrackInMappackInfo(&mappackTrack, mappackId, trackId).Error; err != nil {
 		return err
 	}
+
+	var trackTimeGoals []models.TimeGoalMappackTrack
+	if err := t.RecordRepository.GetTrackTimeGoalsTimes(mappackTrack.ID, &trackTimeGoals).Error; err != nil {
+		return err
+	}
+
+	timeGoalDtos := make([]dtos.TrackTimeGoalDto, 0, len(trackTimeGoals))
+	for _, ttg := range trackTimeGoals {
+		timeGoalDtos = append(timeGoalDtos, dtos.TrackTimeGoalDto{
+			Name: ttg.TimeGoal.Name,
+			Time: ttg.Time,
+		})
+	}
+
 	*track = dtos.TrackInMappackDto{
 		ID:                       trackInDb.ID,
 		MapID:                    trackInDb.MapID,
@@ -97,6 +113,8 @@ func (t *RecordService) GetTrackWithRecords(track *dtos.TrackInMappackDto, mappa
 		Tier:                     mappackTrack.Tier,
 		UpdatedAt:                trackInDb.UpdatedAt,
 		Records:                  records,
+		TimeGoals:                timeGoalDtos,
 	}
+
 	return nil
 }
