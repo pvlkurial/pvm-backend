@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"example/pvm-backend/internal/models"
+	"example/pvm-backend/internal/models/dtos"
 	"example/pvm-backend/internal/services"
 	"time"
 
@@ -124,4 +125,11 @@ func (t *RecordHandler) FetchNewTrackRecords(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{"message": "Records saved successfully", "count": len(*recordList)})
+}
+func (t *RecordHandler) GetTrackWithRecords(c *gin.Context) {
+	trackId := c.Param("track_id")
+	mappack_id := c.Param("mappack_id")
+	var track dtos.TrackInMappackDto
+	t.RecordService.GetTrackWithRecords(&track, mappack_id, trackId)
+	c.JSON(http.StatusOK, track)
 }

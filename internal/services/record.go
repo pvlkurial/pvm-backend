@@ -3,6 +3,7 @@ package services
 import (
 	"example/pvm-backend/internal/database"
 	"example/pvm-backend/internal/models"
+	"example/pvm-backend/internal/models/dtos"
 	"fmt"
 
 	"gorm.io/gorm"
@@ -11,6 +12,7 @@ import (
 type RecordService struct {
 	RecordRepository *database.RecordRepository
 	PlayerRepository *database.PlayerRepository
+	TrackRepository  *database.TrackRepository
 }
 
 func (t *RecordService) Create(record *models.Record) *gorm.DB {
@@ -55,4 +57,46 @@ func (t *RecordService) SaveFetchedRecords(records *[]models.Record) *gorm.DB {
 		}
 	}
 	return result
+}
+
+func (t *RecordService) GetTrackWithRecords(track *dtos.TrackInMappackDto, mappackId string, trackId string) error {
+	var trackInDb models.Track
+	if err := t.TrackRepository.GetById(&trackInDb, trackId).Error; err != nil {
+		return err
+	}
+	var records []models.Record
+	if err := t.RecordRepository.GetByTrackId(&records, trackId).Error; err != nil {
+		return err
+	}
+	var mappackTrack models.MappackTrack
+	if err := t.TrackRepository.GetTrackInMappackInfo(&mappackTrack, mappackId, trackId).Error; err != nil {
+		return err
+	}
+	*track = dtos.TrackInMappackDto{
+		ID:                       trackInDb.ID,
+		MapID:                    trackInDb.MapID,
+		MapUID:                   trackInDb.MapUID,
+		Name:                     trackInDb.Name,
+		Author:                   trackInDb.Author,
+		Submitter:                trackInDb.Submitter,
+		AuthorScore:              trackInDb.AuthorScore,
+		GoldScore:                trackInDb.GoldScore,
+		SilverScore:              trackInDb.SilverScore,
+		BronzeScore:              trackInDb.BronzeScore,
+		CollectionName:           trackInDb.CollectionName,
+		Filename:                 trackInDb.Filename,
+		MapType:                  trackInDb.MapType,
+		MapStyle:                 trackInDb.MapStyle,
+		IsPlayable:               trackInDb.IsPlayable,
+		CreatedWithGamepadEditor: trackInDb.CreatedWithGamepadEditor,
+		CreatedWithSimpleEditor:  trackInDb.CreatedWithSimpleEditor,
+		Timestamp:                trackInDb.Timestamp,
+		FileURL:                  trackInDb.FileURL,
+		ThumbnailURL:             trackInDb.ThumbnailURL,
+		Time:                     mappackTrack.ID,
+		Tier:                     mappackTrack.Tier,
+		UpdatedAt:                trackInDb.UpdatedAt,
+		Records:                  records,
+	}
+	return nil
 }

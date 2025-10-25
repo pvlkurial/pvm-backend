@@ -53,3 +53,6 @@ func (t *TrackRepository) UpdateTimeGoalsForTrack(timegoals *[]models.TimeGoalMa
 	}
 	return nil
 }
+func (t *TrackRepository) GetTrackInMappackInfo(mappackTrack *models.MappackTrack, mappackId string, trackId string) *gorm.DB {
+	return t.DB.Where("mappack_id = ? AND track_id = ?", mappackId, trackId).First(mappackTrack)
+}

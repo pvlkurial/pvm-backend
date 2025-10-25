@@ -32,7 +32,7 @@ func (r *Routes) InitRoutes() {
 	mappackHandler := &handlers.MappackHandler{MappackService: mappackService}
 
 	recordRepository := &database.RecordRepository{DB: r.DB}
-	recordService := &services.RecordService{RecordRepository: recordRepository, PlayerRepository: playerRepository}
+	recordService := &services.RecordService{RecordRepository: recordRepository, PlayerRepository: playerRepository, TrackRepository: trackRepository}
 	recordHandler := &handlers.RecordHandler{RecordService: recordService, TokenManager: &tokenManager, TrackService: trackService}
 
 	r.Use(cors.New(cors.Config{
@@ -69,6 +69,8 @@ func (r *Routes) InitRoutes() {
 	r.POST("/tracks/:track_id/records", recordHandler.FetchNewTrackRecords)
 	r.GET("/tracks/:track_id/records", recordHandler.GetByTrackId)
 	r.POST("/tracks/track_id/records/:player_id", recordHandler.GetPlayersRecordsForTrack)
+
+	r.GET("mappacks/:mappack_id/tracks/:track_id", recordHandler.GetTrackWithRecords)
 
 	r.Run("localhost:8080")
 }

@@ -9,4 +9,5 @@ type MappackTrack struct {
 	// time goals for track in mappack
 	TimeGoalMappackTrack []*TimeGoalMappackTrack
 	CreatedAt            time.Time
+	Tier                 string `json:"tier"`
 }
