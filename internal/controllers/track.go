@@ -1,8 +1,9 @@
-package handlers
+package controllers
 
 import (
 	"example/pvm-backend/internal/models"
 	"example/pvm-backend/internal/services"
+	"example/pvm-backend/internal/transport/handlers"
 	"fmt"
 	"net/http"
 
@@ -10,15 +11,14 @@ import (
 )
 
 type TrackHandler struct {
-	TrackService *services.TrackService
-	TokenManager *TokenManager
+	trackService services.TrackService
+	TokenManager *handlers.TokenManager
 }
 
 func (t *TrackHandler) Create(c *gin.Context) {
 	trackTemp := models.Track{}
 
 	err := c.ShouldBind(&trackTemp)
-	fmt.Println("DEBUG TRACK ID:" + trackTemp.ID)
 	track := t.TokenManager.FetchTrackInfo(trackTemp.ID)
 	if err != nil {
 		fmt.Printf("Error occured while binding Track during creation: %s", err)
@@ -26,9 +26,9 @@ func (t *TrackHandler) Create(c *gin.Context) {
 	}
 	fmt.Printf(track.MapType)
 
-	result := t.TrackService.Create(track)
+	err = t.trackService.Create(track)
 
-	if result.Error != nil {
+	if err != nil {
 		fmt.Printf("Error occured while creating a Track: %s", err)
 		c.String(http.StatusInternalServerError, "Internal Server Error")
 	} else {
@@ -38,10 +38,9 @@ func (t *TrackHandler) Create(c *gin.Context) {
 
 func (t *TrackHandler) GetById(c *gin.Context) {
 	id := c.Param("track_id")
-	track := models.Track{}
-	result := t.TrackService.GetById(&track, id)
-	if result.Error != nil {
-		fmt.Printf("Error occured while getting a Track by id: %s", result.Error)
+	track, err := t.trackService.GetById(id)
+	if err != nil {
+		fmt.Printf("Error occured while getting a Track by id: %s", err)
 		c.String(http.StatusInternalServerError, "Internal Server Error")
 	} else {
 		c.JSON(http.StatusOK, track)
@@ -50,10 +49,9 @@ func (t *TrackHandler) GetById(c *gin.Context) {
 
 func (t *TrackHandler) GetByMappackId(c *gin.Context) {
 	id := c.Param("mappack_id")
-	tracks := []models.Track{}
-	result := t.TrackService.GetByMappackId(&tracks, id)
-	if result.Error != nil {
-		fmt.Printf("Error occured while getting a Tracks from a mappack by id: %s", result.Error)
+	tracks, err := t.trackService.GetByMappackId(id)
+	if err != nil {
+		fmt.Printf("Error occured while getting a Tracks from a mappack by id: %s", err)
 		c.String(http.StatusInternalServerError, "Internal Server Error")
 	} else {
 		c.JSON(http.StatusOK, tracks)
@@ -64,10 +62,10 @@ func (t *TrackHandler) AddTrackToMappack(c *gin.Context) {
 	trackId := c.Param("track_id")
 	mappackId := c.Param("mappack_id")
 
-	result := t.TrackService.AddTrackToMappack(trackId, mappackId)
+	err := t.trackService.AddTrackToMappack(trackId, mappackId)
 
-	if result.Error != nil {
-		fmt.Printf("Error occured while creating a Track: %s", result.Error)
+	if err != nil {
+		fmt.Printf("Error occured while creating a Track: %s", err)
 		c.String(http.StatusInternalServerError, "Internal Server Error")
 	} else {
 		c.String(http.StatusOK, "Added track to mappack succesfully")
@@ -78,10 +76,10 @@ func (t *TrackHandler) RemoveTrackFromMappack(c *gin.Context) {
 	trackId := c.Param("track_id")
 	mappackId := c.Param("mappack_id")
 
-	result := t.TrackService.RemoveTrackFromMappack(trackId, mappackId)
+	err := t.trackService.RemoveTrackFromMappack(trackId, mappackId)
 
-	if result.Error != nil {
-		fmt.Printf("Error occured while removing a Track from mappack: %s", result.Error)
+	if err != nil {
+		fmt.Printf("Error occured while removing a Track from mappack: %s", err)
 		c.String(http.StatusInternalServerError, "Internal Server Error")
 	} else {
 		c.String(http.StatusOK, "Removed track to mappack succesfully")
@@ -97,9 +95,9 @@ func (t *TrackHandler) CreateTimeGoalsForTrack(c *gin.Context) {
 		c.String(http.StatusInternalServerError, "Internal Server Error")
 	}
 
-	result := t.TrackService.CreateTimeGoalsForTrack(&timegoals)
+	err = t.trackService.CreateTimeGoalsForTrack(&timegoals)
 
-	if result.Error != nil {
+	if err != nil {
 		fmt.Printf("Error occured while creating a timegoal: %s", err)
 		c.String(http.StatusInternalServerError, "Internal Server Error")
 	} else {
@@ -110,12 +108,11 @@ func (t *TrackHandler) CreateTimeGoalsForTrack(c *gin.Context) {
 func (t *TrackHandler) GetTimeGoalsForTrack(c *gin.Context) {
 	trackId := c.Param("track_id")
 	mappackId := c.Param("mappack_id")
-	var timegoals []models.TimeGoalMappackTrack
 
-	result := t.TrackService.GetTimeGoalsForTrack(trackId, mappackId, &timegoals)
+	timegoals, err := t.trackService.GetTimeGoalsForTrack(trackId, mappackId)
 
-	if result.Error != nil {
-		fmt.Printf("Error occured while getting timegoals for track: %s", result.Error)
+	if err != nil {
+		fmt.Printf("Error occured while getting timegoals for track: %s", err)
 		c.String(http.StatusInternalServerError, "Internal Server Error")
 	} else {
 		c.JSON(http.StatusOK, timegoals)
@@ -131,10 +128,10 @@ func (t *TrackHandler) UpdateTimeGoalsForTrack(c *gin.Context) {
 		c.String(http.StatusInternalServerError, "Internal Server Error")
 	}
 
-	result := t.TrackService.UpdateTimeGoalsForTrack(&timegoals)
+	err = t.trackService.UpdateTimeGoalsForTrack(&timegoals)
 
-	if result != nil && result.Error != nil {
-		fmt.Printf("Error occured while updating timegoals for track: %s", result.Error)
+	if err != nil {
+		fmt.Printf("Error occured while updating timegoals for track: %s", err)
 		c.String(http.StatusInternalServerError, "Internal Server Error")
 	} else {
 		c.String(http.StatusOK, "Update Succesful")
