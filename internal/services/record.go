@@ -14,8 +14,8 @@ type RecordService interface {
 	GetById(id string) (models.Record, error)
 	GetByTrackId(id string) ([]models.Record, error)
 	GetPlayersRecordsForTrack(trackId string, playerId string) ([]models.Record, error)
-	SaveFetchedRecords(records *[]models.Record)
-	GetTrackWithRecords(mappackId string, trackId string) error
+	SaveFetchedRecords(records *[]models.Record) error
+	GetTrackWithRecords(mappackId string, trackId string) (dtos.TrackInMappackDto, error)
 }
 
 type recordService struct {
@@ -48,12 +48,11 @@ func (t *recordService) GetPlayersRecordsForTrack(trackId string, playerId strin
 }
 
 // This function needs to be done by TrackmaniaAPIClient
-func (t *recordService) SaveFetchedRecords(records *[]models.Record) {
+func (t *recordService) SaveFetchedRecords(records *[]models.Record) error {
 	if records == nil || len(*records) == 0 {
-		return
+		return nil
 	}
 
-	var result *gorm.DB
 	for _, record := range *records {
 		var player models.Player
 		playerResult := t.recordRepository.DB.First(&player, "id = ?", record.PlayerID)
@@ -70,33 +69,34 @@ func (t *recordService) SaveFetchedRecords(records *[]models.Record) {
 		err := t.recordRepository.Create(&record)
 		if err != nil {
 			fmt.Printf("Error creating record: %v\n", err)
-			return result
+			return err
 		}
 	}
-	return result
+	return nil
 }
 
 // This function needs to be done by TrackmaniaAPIClient
-func (t *recordService) GetTrackWithRecords(mappackId string, trackId string) error {
+func (t *recordService) GetTrackWithRecords(mappackId string, trackId string) (dtos.TrackInMappackDto, error) {
 	var trackInDb models.Track
+	emptyTrack := dtos.TrackInMappackDto{}
 	trackInDb, err := t.trackRepository.GetById(trackId)
 	if err != nil {
-		return err
+		return emptyTrack, err
 	}
 
 	records, err := t.recordRepository.GetByTrackId(trackId)
 	if err != nil {
-		return err
+		return emptyTrack, err
 	}
 
 	mappackTrack, err := t.trackRepository.GetTrackInMappackInfo(mappackId, trackId)
 	if err != nil {
-		return err
+		return emptyTrack, err
 	}
 
 	trackTimeGoals, err := t.recordRepository.GetTrackTimeGoalsTimes(mappackTrack.ID)
 	if err != nil {
-		return err
+		return emptyTrack, err
 	}
 
 	timeGoalDtos := make([]dtos.TrackTimeGoalDto, 0, len(trackTimeGoals))
@@ -135,5 +135,5 @@ func (t *recordService) GetTrackWithRecords(mappackId string, trackId string) er
 		TimeGoals:                timeGoalDtos,
 	}
 
-	return nil
+	return track, err
 }

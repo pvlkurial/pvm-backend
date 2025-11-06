@@ -14,9 +14,9 @@ import (
 )
 
 type RecordController struct {
-	RecordService *services.RecordService
+	recordService services.RecordService
 	TokenManager  *handlers.TokenManager
-	TrackService  *services.TrackService
+	trackService  services.TrackService
 }
 
 func (t *RecordController) Create(c *gin.Context) {
@@ -28,9 +28,9 @@ func (t *RecordController) Create(c *gin.Context) {
 		c.String(http.StatusInternalServerError, "Internal Server Error")
 	}
 
-	result := t.RecordService.Create(&record)
+	err = t.recordService.Create(&record)
 
-	if result.Error != nil {
+	if err != nil {
 		fmt.Printf("Error occured while creating a Record: %s", err)
 		c.String(http.StatusInternalServerError, "Internal Server Error")
 	} else {
@@ -41,10 +41,9 @@ func (t *RecordController) Create(c *gin.Context) {
 
 func (t *RecordController) GetById(c *gin.Context) {
 	id := c.Param("id")
-	record := models.Record{}
-	result := t.RecordService.GetById(&record, id)
-	if result.Error != nil {
-		fmt.Printf("Error occured while getting a Record by id: %s", result.Error)
+	record, err := t.recordService.GetById(id)
+	if err != nil {
+		fmt.Printf("Error occured while getting a Record by id: %s", err)
 		c.String(http.StatusInternalServerError, "Internal Server Error")
 	} else {
 		c.JSON(http.StatusOK, record)
@@ -53,17 +52,15 @@ func (t *RecordController) GetById(c *gin.Context) {
 
 func (t *RecordController) GetByTrackId(c *gin.Context) {
 	trackId := c.Param("track_id")
-	records := []models.Record{}
-	track := models.Track{}
-	trackResult := t.TrackService.GetById(&track, trackId)
-	if trackResult.Error != nil {
-		fmt.Printf("Error occured while getting Track by id: %s", trackResult.Error)
+	track, err := t.trackService.GetById(trackId)
+	if err != nil {
+		fmt.Printf("Error occured while getting Track by id: %s", err)
 		c.String(http.StatusInternalServerError, "Internal Server Error")
 		return
 	}
-	result := t.RecordService.GetByTrackId(&records, track.MapID)
-	if result.Error != nil {
-		fmt.Printf("Error occured while getting Records by Track id: %s", result.Error)
+	records, err := t.recordService.GetByTrackId(track.MapID)
+	if err != nil {
+		fmt.Printf("Error occured while getting Records by Track id: %s", err)
 		c.String(http.StatusInternalServerError, "Internal Server Error")
 	} else {
 		c.JSON(http.StatusOK, records)
@@ -73,10 +70,9 @@ func (t *RecordController) GetByTrackId(c *gin.Context) {
 func (t *RecordController) GetPlayersRecordsForTrack(c *gin.Context) {
 	trackId := c.Param("track_id")
 	playerId := c.Param("player_id")
-	records := []models.Record{}
-	result := t.RecordService.GetPlayersRecordsForTrack(trackId, playerId, &records)
-	if result.Error != nil {
-		fmt.Printf("Error occured while getting Player's Records for Track: %s", result.Error)
+	records, err := t.recordService.GetPlayersRecordsForTrack(trackId, playerId)
+	if err != nil {
+		fmt.Printf("Error occured while getting Player's Records for Track: %s", err)
 		c.String(http.StatusInternalServerError, "Internal Server Error")
 	} else {
 		c.JSON(http.StatusOK, records)
@@ -85,10 +81,9 @@ func (t *RecordController) GetPlayersRecordsForTrack(c *gin.Context) {
 
 func (t *RecordController) FetchNewTrackRecords(c *gin.Context) {
 	trackId := c.Param("track_id")
-	track := models.Track{}
-	trackResult := t.TrackService.GetById(&track, trackId)
-	if trackResult.Error != nil {
-		fmt.Printf("Error occurred while fetching Track by ID: %s\n", trackResult.Error)
+	track, err := t.trackService.GetById(trackId)
+	if err != nil {
+		fmt.Printf("Error occurred while fetching Track by ID: %s\n", err)
 		c.String(http.StatusInternalServerError, "Internal Server Error")
 		return
 	}
@@ -112,15 +107,15 @@ func (t *RecordController) FetchNewTrackRecords(c *gin.Context) {
 		(*recordList)[i].UpdatedAt = time.Now()
 	}
 
-	result := t.RecordService.SaveFetchedRecords(recordList)
+	err = t.recordService.SaveFetchedRecords(recordList)
 
-	if result == nil {
+	if err == nil {
 		c.String(http.StatusOK, "No records to save")
 		return
 	}
 
-	if result.Error != nil {
-		fmt.Printf("Error occurred while creating a Record: %s\n", result.Error)
+	if err != nil {
+		fmt.Printf("Error occurred while creating a Record: %s\n", err)
 		c.String(http.StatusInternalServerError, "Internal Server Error")
 		return
 	}
@@ -131,6 +126,10 @@ func (t *RecordController) GetTrackWithRecords(c *gin.Context) {
 	trackId := c.Param("track_id")
 	mappack_id := c.Param("mappack_id")
 	var track dtos.TrackInMappackDto
-	t.RecordService.GetTrackWithRecords(&track, mappack_id, trackId)
+	track, err := t.recordService.GetTrackWithRecords(mappack_id, trackId)
+	if err != nil {
+		fmt.Printf("Error occurred while creating a Record: %s\n", err)
+		c.String(http.StatusInternalServerError, "Internal Server Error")
+	}
 	c.JSON(http.StatusOK, track)
 }
