@@ -1,8 +1,8 @@
 package services
 
 import (
-	"example/pvm-backend/internal/database"
 	"example/pvm-backend/internal/models"
+	"example/pvm-backend/internal/repositories"
 )
 
 type MappackService interface {
@@ -15,10 +15,10 @@ type MappackService interface {
 }
 
 type mappackService struct {
-	mappackRepository database.MappackRepository
+	mappackRepository repositories.MappackRepository
 }
 
-func NewMappackService(repo database.MappackRepository) MappackService {
+func NewMappackService(repo repositories.MappackRepository) MappackService {
 	return &mappackService{mappackRepository: repo}
 }
 

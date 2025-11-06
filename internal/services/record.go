@@ -1,9 +1,9 @@
 package services
 
 import (
-	"example/pvm-backend/internal/database"
 	"example/pvm-backend/internal/models"
 	"example/pvm-backend/internal/models/dtos"
+	"example/pvm-backend/internal/repositories"
 	"fmt"
 
 	"gorm.io/gorm"
@@ -19,15 +19,15 @@ type RecordService interface {
 }
 
 type recordService struct {
-	recordRepository database.RecordRepository
+	recordRepository repositories.RecordRepository
 
-	playerRepository database.PlayerRepository
-	trackRepository  database.TrackRepository
+	playerRepository repositories.PlayerRepository
+	trackRepository  repositories.TrackRepository
 }
 
-func NewRecordService(recordRepo database.RecordRepository,
-	playerRepo database.PlayerRepository,
-	trackRepo database.TrackRepository) RecordService {
+func NewRecordService(recordRepo repositories.RecordRepository,
+	playerRepo repositories.PlayerRepository,
+	trackRepo repositories.TrackRepository) RecordService {
 	return &recordService{recordRepository: recordRepo, playerRepository: playerRepo, trackRepository: trackRepo}
 }
 

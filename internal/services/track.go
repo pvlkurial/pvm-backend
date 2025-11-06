@@ -1,8 +1,8 @@
 package services
 
 import (
-	"example/pvm-backend/internal/database"
 	"example/pvm-backend/internal/models"
+	"example/pvm-backend/internal/repositories"
 )
 
 type TrackService interface {
@@ -18,10 +18,10 @@ type TrackService interface {
 }
 
 type trackService struct {
-	trackRepository database.TrackRepository
+	trackRepository repositories.TrackRepository
 }
 
-func NewTrackService(repo database.TrackRepository) TrackService {
+func NewTrackService(repo repositories.TrackRepository) TrackService {
 	return &trackService{trackRepository: repo}
 }
 

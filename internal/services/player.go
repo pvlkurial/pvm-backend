@@ -1,8 +1,8 @@
 package services
 
 import (
-	"example/pvm-backend/internal/database"
 	"example/pvm-backend/internal/models"
+	"example/pvm-backend/internal/repositories"
 )
 
 type PlayerService interface {
@@ -13,10 +13,10 @@ type PlayerService interface {
 }
 
 type playerService struct {
-	playerRepository database.PlayerRepository
+	playerRepository repositories.PlayerRepository
 }
 
-func NewPlayerService(repo database.PlayerRepository) PlayerService {
+func NewPlayerService(repo repositories.PlayerRepository) PlayerService {
 	return &playerService{playerRepository: repo}
 }
 
