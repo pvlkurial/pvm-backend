@@ -1,4 +1,4 @@
-package handlers
+package controllers
 
 import (
 	"example/pvm-backend/internal/models"
@@ -10,7 +10,7 @@ import (
 )
 
 type PlayerHandler struct {
-	PlayerService *services.PlayerService
+	playerService services.PlayerService
 }
 
 func (t *PlayerHandler) Create(c *gin.Context) {
@@ -22,9 +22,9 @@ func (t *PlayerHandler) Create(c *gin.Context) {
 		c.String(http.StatusInternalServerError, "Internal Server Error")
 	}
 
-	result := t.PlayerService.Create(&player)
+	err = t.playerService.Create(&player)
 
-	if result.Error != nil {
+	if err != nil {
 		fmt.Printf("Error occured while creating a Player: %s", err)
 		c.String(http.StatusInternalServerError, "Internal Server Error")
 	} else {
@@ -35,23 +35,22 @@ func (t *PlayerHandler) Create(c *gin.Context) {
 
 func (t *PlayerHandler) GetAll(c *gin.Context) {
 	players := []models.Player{}
-	result := t.PlayerService.GetAll(&players)
-	if result.Error != nil {
-		fmt.Printf("Error occured while getting Players: %s", result.Error)
+	result, err := t.playerService.GetAll(&players)
+	if err != nil {
+		fmt.Printf("Error occured while getting Players: %s", err)
 		c.String(http.StatusInternalServerError, "Internal Server Error")
 	} else {
-		c.JSON(http.StatusOK, players)
+		c.JSON(http.StatusOK, result)
 	}
 }
 
 func (t *PlayerHandler) GetById(c *gin.Context) {
 	id := c.Param("id")
-	player := models.Player{}
-	result := t.PlayerService.GetById(&player, id)
-	if result.Error != nil {
-		fmt.Printf("Error occured while getting a Player by id: %s", result.Error)
+	result, err := t.playerService.GetById(id)
+	if err != nil {
+		fmt.Printf("Error occured while getting a Player by id: %s", err)
 		c.String(http.StatusInternalServerError, "Internal Server Error")
 	} else {
-		c.JSON(http.StatusOK, player)
+		c.JSON(http.StatusOK, result)
 	}
 }

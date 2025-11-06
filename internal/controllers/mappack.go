@@ -10,7 +10,7 @@ import (
 )
 
 type MappackController struct {
-	MappackService *services.MappackService
+	mappackService services.MappackService
 }
 
 func (t *MappackController) Create(c *gin.Context) {
@@ -22,7 +22,7 @@ func (t *MappackController) Create(c *gin.Context) {
 		c.String(http.StatusInternalServerError, "Internal Server Error")
 	}
 
-	err = t.MappackService.Create(&mappack)
+	err = t.mappackService.Create(&mappack)
 
 	if err != nil {
 		fmt.Printf("Error occured while creating a Mappack: %s", err)
@@ -34,7 +34,7 @@ func (t *MappackController) Create(c *gin.Context) {
 
 func (t *MappackController) GetById(c *gin.Context) {
 	id := c.Param("mappack_id")
-	result, err := t.MappackService.GetById(id)
+	result, err := t.mappackService.GetById(id)
 	if err != nil {
 		fmt.Printf("Error occured while getting a Mappack by id: %s", err)
 		c.String(http.StatusInternalServerError, "Internal Server Error")
@@ -44,7 +44,7 @@ func (t *MappackController) GetById(c *gin.Context) {
 }
 
 func (t *MappackController) GetAll(c *gin.Context) {
-	result, err := t.MappackService.GetAll()
+	result, err := t.mappackService.GetAll()
 	if err != nil {
 		fmt.Printf("Error occured while getting Mappacks: %s", err)
 		c.String(http.StatusInternalServerError, "Internal Server Error")
@@ -63,7 +63,7 @@ func (t *MappackController) CreateMappackTimeGoal(c *gin.Context) {
 	}
 	timegoal.MappackID = mappackId
 
-	err = t.MappackService.CreateMappackTimeGoal(&timegoal)
+	err = t.mappackService.CreateMappackTimeGoal(&timegoal)
 
 	if err != nil {
 		fmt.Printf("Error occured while creating a TimeGoal: %s", err)
@@ -75,7 +75,7 @@ func (t *MappackController) CreateMappackTimeGoal(c *gin.Context) {
 
 func (t *MappackController) GetAllMappackTimeGoals(c *gin.Context) {
 	mappackId := c.Param("mappack_id")
-	result, err := t.MappackService.GetAllMappackTimeGoals(mappackId)
+	result, err := t.mappackService.GetAllMappackTimeGoals(mappackId)
 	if err != nil {
 		fmt.Printf("Error occured while getting TimeGoals of a mappack: %s", err)
 		c.String(http.StatusInternalServerError, "Internal Server Error")
@@ -86,7 +86,7 @@ func (t *MappackController) GetAllMappackTimeGoals(c *gin.Context) {
 
 func (t *MappackController) RemoveTimeGoalFromMappack(c *gin.Context) {
 	id := c.Param("timegoal_id")
-	result, err := t.MappackService.RemoveTimeGoalFromMappack(id)
+	result, err := t.mappackService.RemoveTimeGoalFromMappack(id)
 
 	if err != nil {
 		fmt.Printf("Error occured while removing a Timegoal from a mappack: %s", err)

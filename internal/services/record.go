@@ -42,9 +42,9 @@ func (t *RecordService) SaveFetchedRecords(records *[]models.Record) *gorm.DB {
 		playerResult := t.RecordRepository.DB.First(&player, "id = ?", record.PlayerID)
 		if playerResult.Error == gorm.ErrRecordNotFound {
 			fmt.Printf("Player %s not found.\n", record.PlayerID)
-			playerRes := t.PlayerRepository.Create(&models.Player{ID: record.PlayerID})
-			if playerRes.Error != nil {
-				fmt.Printf("Error creating player %s: %v\n", record.PlayerID, playerRes.Error)
+			err := t.PlayerRepository.Create(&models.Player{ID: record.PlayerID})
+			if err != nil {
+				fmt.Printf("Error creating player %s: %v\n", record.PlayerID, err)
 				continue
 			}
 			fmt.Printf("Player %s created.\n", record.PlayerID)

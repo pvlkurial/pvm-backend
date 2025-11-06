@@ -6,22 +6,39 @@ import (
 	"gorm.io/gorm"
 )
 
-type PlayerRepository struct {
-	DB *gorm.DB
+type PlayerRepository interface {
+	Create(player *models.Player) error
+	GetAll() ([]models.Player, error)
+	GetById(id string) (models.Player, error)
+	Update(player *models.Player) error
 }
 
-func (t *PlayerRepository) Create(player *models.Player) *gorm.DB {
-	return t.DB.Create(&player)
+type playerRepository struct {
+	db *gorm.DB
 }
 
-func (t *PlayerRepository) GetAll(players *[]models.Player) *gorm.DB {
-	return t.DB.Find(players)
+func NewPlayerRepository(db *gorm.DB) PlayerRepository {
+	return &playerRepository{db: db}
 }
 
-func (t *PlayerRepository) GetById(player *models.Player, id string) *gorm.DB {
-	return t.DB.Where("ID = ?", id).First(player)
+func (t *playerRepository) Create(player *models.Player) error {
+	err := t.db.Create(&player).Error
+	return err
 }
 
-func (t *PlayerRepository) Update(player *models.Player) *gorm.DB {
-	return t.DB.Save(player)
+func (t *playerRepository) GetAll() ([]models.Player, error) {
+	players := []models.Player{}
+	err := t.db.Find(&players).Error
+	return players, err
+}
+
+func (t *playerRepository) GetById(id string) (models.Player, error) {
+	player := models.Player{}
+	err := t.db.Where("ID = ?", id).First(&player).Error
+	return player, err
+}
+
+func (t *playerRepository) Update(player *models.Player) error {
+	err := t.db.Save(player).Error
+	return err
 }

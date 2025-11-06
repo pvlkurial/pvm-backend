@@ -3,25 +3,34 @@ package services
 import (
 	"example/pvm-backend/internal/database"
 	"example/pvm-backend/internal/models"
-
-	"gorm.io/gorm"
 )
 
-type PlayerService struct {
-	PlayerRepository *database.PlayerRepository
+type PlayerService interface {
+	Create(player *models.Player) error
+	GetAll(players *[]models.Player) ([]models.Player, error)
+	GetById(id string) (models.Player, error)
+	Update(player *models.Player) error
 }
 
-func (t *PlayerService) Create(player *models.Player) *gorm.DB {
-	return t.PlayerRepository.Create(player)
-}
-func (t *PlayerService) GetAll(players *[]models.Player) *gorm.DB {
-	return t.PlayerRepository.GetAll(players)
+type playerService struct {
+	playerRepository database.PlayerRepository
 }
 
-func (t *PlayerService) GetById(player *models.Player, id string) *gorm.DB {
-	return t.PlayerRepository.GetById(player, id)
+func NewPlayerService(repo database.PlayerRepository) PlayerService {
+	return &playerService{playerRepository: repo}
 }
 
-func (t *PlayerService) Update(player *models.Player) *gorm.DB {
-	return t.PlayerRepository.Update(player)
+func (t *playerService) Create(player *models.Player) error {
+	return t.playerRepository.Create(player)
+}
+func (t *playerService) GetAll(players *[]models.Player) ([]models.Player, error) {
+	return t.playerRepository.GetAll()
+}
+
+func (t *playerService) GetById(id string) (models.Player, error) {
+	return t.playerRepository.GetById(id)
+}
+
+func (t *playerService) Update(player *models.Player) error {
+	return t.playerRepository.Update(player)
 }
