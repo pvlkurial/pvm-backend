@@ -9,40 +9,57 @@ import (
 	"gorm.io/gorm"
 )
 
-type RecordService struct {
-	RecordRepository *database.RecordRepository
-	PlayerRepository *database.PlayerRepository
-	TrackRepository  *database.TrackRepository
+type RecordService interface {
+	Create(record *models.Record) error
+	GetById(id string) (models.Record, error)
+	GetByTrackId(id string) ([]models.Record, error)
+	GetPlayersRecordsForTrack(trackId string, playerId string) ([]models.Record, error)
+	SaveFetchedRecords(records *[]models.Record)
+	GetTrackWithRecords(mappackId string, trackId string) error
 }
 
-func (t *RecordService) Create(record *models.Record) *gorm.DB {
-	return t.RecordRepository.Create(record)
+type recordService struct {
+	recordRepository database.RecordRepository
+
+	playerRepository database.PlayerRepository
+	trackRepository  database.TrackRepository
 }
 
-func (t *RecordService) GetById(record *models.Record, id string) *gorm.DB {
-	return t.RecordRepository.GetById(record, id)
+func NewRecordService(recordRepo database.RecordRepository,
+	playerRepo database.PlayerRepository,
+	trackRepo database.TrackRepository) RecordService {
+	return &recordService{recordRepository: recordRepo, playerRepository: playerRepo, trackRepository: trackRepo}
 }
 
-func (t *RecordService) GetByTrackId(records *[]models.Record, id string) *gorm.DB {
-	return t.RecordRepository.GetByTrackId(records, id)
+func (t *recordService) Create(record *models.Record) error {
+	return t.recordRepository.Create(record)
 }
 
-func (t *RecordService) GetPlayersRecordsForTrack(trackId string, playerId string, records *[]models.Record) *gorm.DB {
-	return t.RecordRepository.GetPlayersRecordsForTrack(trackId, playerId, records)
+func (t *recordService) GetById(id string) (models.Record, error) {
+	return t.recordRepository.GetById(id)
 }
 
-func (t *RecordService) SaveFetchedRecords(records *[]models.Record) *gorm.DB {
+func (t *recordService) GetByTrackId(id string) ([]models.Record, error) {
+	return t.recordRepository.GetByTrackId(id)
+}
+
+func (t *recordService) GetPlayersRecordsForTrack(trackId string, playerId string) ([]models.Record, error) {
+	return t.recordRepository.GetPlayersRecordsForTrack(trackId, playerId)
+}
+
+// This function needs to be done by TrackmaniaAPIClient
+func (t *recordService) SaveFetchedRecords(records *[]models.Record) {
 	if records == nil || len(*records) == 0 {
-		return &gorm.DB{}
+		return
 	}
 
 	var result *gorm.DB
 	for _, record := range *records {
 		var player models.Player
-		playerResult := t.RecordRepository.DB.First(&player, "id = ?", record.PlayerID)
+		playerResult := t.recordRepository.DB.First(&player, "id = ?", record.PlayerID)
 		if playerResult.Error == gorm.ErrRecordNotFound {
 			fmt.Printf("Player %s not found.\n", record.PlayerID)
-			err := t.PlayerRepository.Create(&models.Player{ID: record.PlayerID})
+			err := t.playerRepository.Create(&models.Player{ID: record.PlayerID})
 			if err != nil {
 				fmt.Printf("Error creating player %s: %v\n", record.PlayerID, err)
 				continue
@@ -50,33 +67,35 @@ func (t *RecordService) SaveFetchedRecords(records *[]models.Record) *gorm.DB {
 			fmt.Printf("Player %s created.\n", record.PlayerID)
 		}
 
-		result = t.RecordRepository.Create(&record)
-		if result.Error != nil {
-			fmt.Printf("Error creating record: %v\n", result.Error)
+		err := t.recordRepository.Create(&record)
+		if err != nil {
+			fmt.Printf("Error creating record: %v\n", err)
 			return result
 		}
 	}
 	return result
 }
 
-func (t *RecordService) GetTrackWithRecords(track *dtos.TrackInMappackDto, mappackId string, trackId string) error {
+// This function needs to be done by TrackmaniaAPIClient
+func (t *recordService) GetTrackWithRecords(mappackId string, trackId string) error {
 	var trackInDb models.Track
-	if err := t.TrackRepository.GetById(&trackInDb, trackId).Error; err != nil {
+	trackInDb, err := t.trackRepository.GetById(trackId)
+	if err != nil {
 		return err
 	}
 
-	var records []models.Record
-	if err := t.RecordRepository.GetByTrackId(&records, trackId).Error; err != nil {
+	records, err := t.recordRepository.GetByTrackId(trackId)
+	if err != nil {
 		return err
 	}
 
-	var mappackTrack models.MappackTrack
-	if err := t.TrackRepository.GetTrackInMappackInfo(&mappackTrack, mappackId, trackId).Error; err != nil {
+	mappackTrack, err := t.trackRepository.GetTrackInMappackInfo(mappackId, trackId)
+	if err != nil {
 		return err
 	}
 
-	var trackTimeGoals []models.TimeGoalMappackTrack
-	if err := t.RecordRepository.GetTrackTimeGoalsTimes(mappackTrack.ID, &trackTimeGoals).Error; err != nil {
+	trackTimeGoals, err := t.recordRepository.GetTrackTimeGoalsTimes(mappackTrack.ID)
+	if err != nil {
 		return err
 	}
 
@@ -88,7 +107,7 @@ func (t *RecordService) GetTrackWithRecords(track *dtos.TrackInMappackDto, mappa
 		})
 	}
 
-	*track = dtos.TrackInMappackDto{
+	track := dtos.TrackInMappackDto{
 		ID:                       trackInDb.ID,
 		MapID:                    trackInDb.MapID,
 		MapUID:                   trackInDb.MapUID,

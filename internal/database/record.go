@@ -6,36 +6,53 @@ import (
 	"gorm.io/gorm"
 )
 
-type RecordRepository struct {
+type RecordRepository interface {
+	Create(record *models.Record) error
+	GetById(id string) (models.Record, error)
+	GetByTrackId(id string) ([]models.Record, error)
+	GetPlayersRecordsForTrack(trackId string, playerId string) ([]models.Record, error)
+	GetTrackTimeGoalsTimes(mappackTrackId int) ([]models.TimeGoalMappackTrack, error)
+}
+
+type recordRepository struct {
 	DB *gorm.DB
 }
 
-func (t *RecordRepository) Create(record *models.Record) *gorm.DB {
-	return t.DB.Save(&record)
+func (t *recordRepository) Create(record *models.Record) error {
+	return t.DB.Save(&record).Error
 }
 
-func (t *RecordRepository) GetById(record *models.Record, id string) *gorm.DB {
-	return t.DB.First(record).Where("ID = ?", id)
+func (t *recordRepository) GetById(id string) (models.Record, error) {
+	record := models.Record{}
+	err := t.DB.First(&record).Where("ID = ?", id).Error
+	return record, err
 }
 
-func (t *RecordRepository) GetByTrackId(records *[]models.Record, id string) *gorm.DB {
+func (t *recordRepository) GetByTrackId(id string) ([]models.Record, error) {
+	records := []models.Record{}
 	subQuery := t.DB.Table("records").
 		Select("player_id, MAX(updated_at) as max_time").
 		Where("track_id = ?", id).
 		Group("player_id")
 
-	return t.DB.Joins("INNER JOIN (?) as latest ON records.player_id = latest.player_id AND records.updated_at = latest.max_time", subQuery).
+	err := t.DB.Joins("INNER JOIN (?) as latest ON records.player_id = latest.player_id AND records.updated_at = latest.max_time", subQuery).
 		Where("records.track_id = ?", id).
-		Find(records)
+		Find(&records).Error
+
+	return records, err
 }
 
-func (t *RecordRepository) GetPlayersRecordsForTrack(trackId string, playerId string, records *[]models.Record) *gorm.DB {
-	return t.DB.Where("track_id = ?", trackId).Where("player_id = ?", playerId).Find(records)
+func (t *recordRepository) GetPlayersRecordsForTrack(trackId string, playerId string) ([]models.Record, error) {
+	records := []models.Record{}
+	err := t.DB.Where("track_id = ?", trackId).Where("player_id = ?", playerId).Find(&records).Error
+	return records, err
 }
 
-func (t *RecordRepository) GetTrackTimeGoalsTimes(mappackTrackId int, trackTimeGoals *[]models.TimeGoalMappackTrack) *gorm.DB {
-	return t.DB.
+func (t *recordRepository) GetTrackTimeGoalsTimes(mappackTrackId int) ([]models.TimeGoalMappackTrack, error) {
+	trackTimeGoals := []models.TimeGoalMappackTrack{}
+	err := t.DB.
 		Preload("TimeGoal").
 		Where("mappack_track_id = ?", mappackTrackId).
-		Find(trackTimeGoals)
+		Find(&trackTimeGoals).Error
+	return trackTimeGoals, err
 }

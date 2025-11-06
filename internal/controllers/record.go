@@ -1,9 +1,10 @@
-package handlers
+package controllers
 
 import (
 	"example/pvm-backend/internal/models"
 	"example/pvm-backend/internal/models/dtos"
 	"example/pvm-backend/internal/services"
+	"example/pvm-backend/internal/transport/handlers"
 	"time"
 
 	"fmt"
@@ -12,13 +13,13 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type RecordHandler struct {
+type RecordController struct {
 	RecordService *services.RecordService
-	TokenManager  *TokenManager
+	TokenManager  *handlers.TokenManager
 	TrackService  *services.TrackService
 }
 
-func (t *RecordHandler) Create(c *gin.Context) {
+func (t *RecordController) Create(c *gin.Context) {
 	record := models.Record{}
 
 	err := c.ShouldBind(&record)
@@ -38,7 +39,7 @@ func (t *RecordHandler) Create(c *gin.Context) {
 
 }
 
-func (t *RecordHandler) GetById(c *gin.Context) {
+func (t *RecordController) GetById(c *gin.Context) {
 	id := c.Param("id")
 	record := models.Record{}
 	result := t.RecordService.GetById(&record, id)
@@ -50,7 +51,7 @@ func (t *RecordHandler) GetById(c *gin.Context) {
 	}
 }
 
-func (t *RecordHandler) GetByTrackId(c *gin.Context) {
+func (t *RecordController) GetByTrackId(c *gin.Context) {
 	trackId := c.Param("track_id")
 	records := []models.Record{}
 	track := models.Track{}
@@ -69,7 +70,7 @@ func (t *RecordHandler) GetByTrackId(c *gin.Context) {
 	}
 }
 
-func (t *RecordHandler) GetPlayersRecordsForTrack(c *gin.Context) {
+func (t *RecordController) GetPlayersRecordsForTrack(c *gin.Context) {
 	trackId := c.Param("track_id")
 	playerId := c.Param("player_id")
 	records := []models.Record{}
@@ -82,7 +83,7 @@ func (t *RecordHandler) GetPlayersRecordsForTrack(c *gin.Context) {
 	}
 }
 
-func (t *RecordHandler) FetchNewTrackRecords(c *gin.Context) {
+func (t *RecordController) FetchNewTrackRecords(c *gin.Context) {
 	trackId := c.Param("track_id")
 	track := models.Track{}
 	trackResult := t.TrackService.GetById(&track, trackId)
@@ -126,7 +127,7 @@ func (t *RecordHandler) FetchNewTrackRecords(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{"message": "Records saved successfully", "count": len(*recordList)})
 }
-func (t *RecordHandler) GetTrackWithRecords(c *gin.Context) {
+func (t *RecordController) GetTrackWithRecords(c *gin.Context) {
 	trackId := c.Param("track_id")
 	mappack_id := c.Param("mappack_id")
 	var track dtos.TrackInMappackDto

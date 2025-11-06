@@ -9,11 +9,11 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type PlayerHandler struct {
+type PlayerController struct {
 	playerService services.PlayerService
 }
 
-func (t *PlayerHandler) Create(c *gin.Context) {
+func (t *PlayerController) Create(c *gin.Context) {
 	player := models.Player{}
 
 	err := c.ShouldBind(&player)
@@ -33,7 +33,7 @@ func (t *PlayerHandler) Create(c *gin.Context) {
 
 }
 
-func (t *PlayerHandler) GetAll(c *gin.Context) {
+func (t *PlayerController) GetAll(c *gin.Context) {
 	players := []models.Player{}
 	result, err := t.playerService.GetAll(&players)
 	if err != nil {
@@ -44,7 +44,7 @@ func (t *PlayerHandler) GetAll(c *gin.Context) {
 	}
 }
 
-func (t *PlayerHandler) GetById(c *gin.Context) {
+func (t *PlayerController) GetById(c *gin.Context) {
 	id := c.Param("id")
 	result, err := t.playerService.GetById(id)
 	if err != nil {
