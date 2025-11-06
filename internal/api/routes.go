@@ -1,6 +1,7 @@
 package api
 
 import (
+	"example/pvm-backend/internal/controllers"
 	"example/pvm-backend/internal/database"
 	"example/pvm-backend/internal/services"
 	"example/pvm-backend/internal/transport/handlers"
@@ -29,7 +30,7 @@ func (r *Routes) InitRoutes() {
 
 	mappackRepository := &database.MappackRepository{DB: r.DB}
 	mappackService := &services.MappackService{MappackRepository: mappackRepository}
-	mappackHandler := &handlers.MappackHandler{MappackService: mappackService}
+	mappackHandler := &controllers.MappackController{MappackService: mappackService}
 
 	recordRepository := &database.RecordRepository{DB: r.DB}
 	recordService := &services.RecordService{RecordRepository: recordRepository, PlayerRepository: playerRepository, TrackRepository: trackRepository}
