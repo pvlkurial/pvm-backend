@@ -1,9 +1,9 @@
 package controllers
 
 import (
+	"example/pvm-backend/internal/clients"
 	"example/pvm-backend/internal/models"
 	"example/pvm-backend/internal/services"
-	"example/pvm-backend/internal/transport/handlers"
 	"fmt"
 	"net/http"
 
@@ -12,7 +12,7 @@ import (
 
 type TrackController struct {
 	trackService services.TrackService
-	TokenManager *handlers.TokenManager
+	client       *clients.NadeoAPIClient
 }
 
 func NewTrackController(trackService services.TrackService) *TrackController {
@@ -23,7 +23,7 @@ func (t *TrackController) Create(c *gin.Context) {
 	trackTemp := models.Track{}
 
 	err := c.ShouldBind(&trackTemp)
-	track := t.TokenManager.FetchTrackInfo(trackTemp.ID)
+	track := t.client.FetchTrackInfo(trackTemp.ID)
 	if err != nil {
 		fmt.Printf("Error occured while binding Track during creation: %s", err)
 		c.String(http.StatusInternalServerError, "Internal Server Error")

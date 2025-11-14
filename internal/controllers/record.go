@@ -1,10 +1,10 @@
 package controllers
 
 import (
+	"example/pvm-backend/internal/clients"
 	"example/pvm-backend/internal/models"
 	"example/pvm-backend/internal/models/dtos"
 	"example/pvm-backend/internal/services"
-	"example/pvm-backend/internal/transport/handlers"
 	"time"
 
 	"fmt"
@@ -15,7 +15,7 @@ import (
 
 type RecordController struct {
 	recordService services.RecordService
-	TokenManager  *handlers.TokenManager
+	client        clients.NadeoAPIClient
 	trackService  services.TrackService
 }
 
@@ -83,6 +83,7 @@ func (t *RecordController) GetPlayersRecordsForTrack(c *gin.Context) {
 	}
 }
 
+// TODO: put logic of this in service later okg
 func (t *RecordController) FetchNewTrackRecords(c *gin.Context) {
 	trackId := c.Param("track_id")
 	track, err := t.trackService.GetById(trackId)
@@ -92,26 +93,26 @@ func (t *RecordController) FetchNewTrackRecords(c *gin.Context) {
 		return
 	}
 
-	recordList := t.TokenManager.FetchRecordsOfTrack(track.MapUID)
+	recordList, err := t.client.FetchRecordsOfTrack(track.MapUID, 5, 0)
 
-	if recordList == nil {
+	if err != nil {
 		fmt.Println("Failed to fetch records")
 		c.String(http.StatusInternalServerError, "Failed to fetch records")
 		return
 	}
 
-	if len(*recordList) == 0 {
+	if len(recordList) == 0 {
 		c.String(http.StatusOK, "No records found")
 		return
 	}
 
-	for i := range *recordList {
-		(*recordList)[i].TrackID = track.ID
-		(*recordList)[i].ID = fmt.Sprintf("%s_%s", track.ID, (*recordList)[i].PlayerID)
-		(*recordList)[i].UpdatedAt = time.Now()
+	for i := range recordList {
+		(recordList)[i].TrackID = track.ID
+		(recordList)[i].ID = fmt.Sprintf("%s_%s", track.ID, (recordList)[i].PlayerID)
+		(recordList)[i].UpdatedAt = time.Now()
 	}
 
-	err = t.recordService.SaveFetchedRecords(recordList)
+	err = t.recordService.SaveFetchedRecords(&recordList)
 
 	if err == nil {
 		c.String(http.StatusOK, "No records to save")
@@ -124,7 +125,7 @@ func (t *RecordController) FetchNewTrackRecords(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"message": "Records saved successfully", "count": len(*recordList)})
+	c.JSON(http.StatusOK, gin.H{"message": "Records saved successfully", "count": len(recordList)})
 }
 func (t *RecordController) GetTrackWithRecords(c *gin.Context) {
 	trackId := c.Param("track_id")

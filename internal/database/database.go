@@ -25,11 +25,11 @@ func ConnectDatabase() *gorm.DB {
 
 func MigrateDatabase(db *gorm.DB) {
 
-	db.AutoMigrate(&models.TimeGoalMappackTrack{})
+	db.AutoMigrate(&models.Player{})
 	db.AutoMigrate(&models.Mappack{})
-	db.AutoMigrate(&models.MappackTrack{})
 	db.AutoMigrate(&models.Track{})
 	db.AutoMigrate(&models.Record{})
-	db.AutoMigrate(&models.Player{})
+	db.AutoMigrate(&models.MappackTrack{})
 	db.AutoMigrate(&models.TimeGoal{})
+	db.AutoMigrate(&models.TimeGoalMappackTrack{})
 }

@@ -5,6 +5,7 @@ import (
 	"example/pvm-backend/internal/models/dtos"
 	"example/pvm-backend/internal/repositories"
 	"fmt"
+	"time"
 )
 
 type RecordService interface {
@@ -18,7 +19,6 @@ type RecordService interface {
 
 type recordService struct {
 	recordRepository repositories.RecordRepository
-
 	playerRepository repositories.PlayerRepository
 	trackRepository  repositories.TrackRepository
 }
@@ -45,7 +45,6 @@ func (t *recordService) GetPlayersRecordsForTrack(trackId string, playerId strin
 	return t.recordRepository.GetPlayersRecordsForTrack(trackId, playerId)
 }
 
-// This function needs to be done by TrackmaniaAPIClient
 func (t *recordService) SaveFetchedRecords(records *[]models.Record) error {
 	if records == nil || len(*records) == 0 {
 		return nil
@@ -72,10 +71,9 @@ func (t *recordService) SaveFetchedRecords(records *[]models.Record) error {
 	return nil
 }
 
-// This function needs to be done by TrackmaniaAPIClient
 func (t *recordService) GetTrackWithRecords(mappackId string, trackId string) (dtos.TrackInMappackDto, error) {
-	var trackInDb models.Track
 	emptyTrack := dtos.TrackInMappackDto{}
+
 	trackInDb, err := t.trackRepository.GetById(trackId)
 	if err != nil {
 		return emptyTrack, err
@@ -91,7 +89,8 @@ func (t *recordService) GetTrackWithRecords(mappackId string, trackId string) (d
 		return emptyTrack, err
 	}
 
-	trackTimeGoals, err := t.recordRepository.GetTrackTimeGoalsTimes(mappackTrack.ID)
+	// Use composite key instead of single ID
+	trackTimeGoals, err := t.recordRepository.GetTrackTimeGoalsTimes(mappackId, trackId)
 	if err != nil {
 		return emptyTrack, err
 	}
@@ -125,12 +124,11 @@ func (t *recordService) GetTrackWithRecords(mappackId string, trackId string) (d
 		Timestamp:                trackInDb.Timestamp,
 		FileURL:                  trackInDb.FileURL,
 		ThumbnailURL:             trackInDb.ThumbnailURL,
-		Time:                     mappackTrack.ID,
+		Time:                     int(time.Now().Unix()),
 		Tier:                     mappackTrack.Tier,
 		UpdatedAt:                trackInDb.UpdatedAt,
 		Records:                  records,
 		TimeGoals:                timeGoalDtos,
 	}
-
-	return track, err
+	return track, nil
 }

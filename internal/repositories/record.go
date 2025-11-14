@@ -11,7 +11,7 @@ type RecordRepository interface {
 	GetById(id string) (models.Record, error)
 	GetByTrackId(id string) ([]models.Record, error)
 	GetPlayersRecordsForTrack(trackId string, playerId string) ([]models.Record, error)
-	GetTrackTimeGoalsTimes(mappackTrackId int) ([]models.TimeGoalMappackTrack, error)
+	GetTrackTimeGoalsTimes(mappackId string, trackId string) ([]models.TimeGoalMappackTrack, error)
 }
 
 type recordRepository struct {
@@ -52,11 +52,8 @@ func (t *recordRepository) GetPlayersRecordsForTrack(trackId string, playerId st
 	return records, err
 }
 
-func (t *recordRepository) GetTrackTimeGoalsTimes(mappackTrackId int) ([]models.TimeGoalMappackTrack, error) {
-	trackTimeGoals := []models.TimeGoalMappackTrack{}
-	err := t.DB.
-		Preload("TimeGoal").
-		Where("mappack_track_id = ?", mappackTrackId).
-		Find(&trackTimeGoals).Error
-	return trackTimeGoals, err
+func (t *recordRepository) GetTrackTimeGoalsTimes(mappackId string, trackId string) ([]models.TimeGoalMappackTrack, error) {
+	var timeGoals []models.TimeGoalMappackTrack
+	err := t.DB.Preload("TimeGoal").Where("mappack_id = ? AND track_id = ?", mappackId, trackId).Find(&timeGoals).Error
+	return timeGoals, err
 }

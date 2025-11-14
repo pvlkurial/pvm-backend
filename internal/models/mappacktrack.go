@@ -3,11 +3,10 @@ package models
 import "time"
 
 type MappackTrack struct {
-	ID        int    `gorm:"primaryKey;autoIncrement"`
-	MappackID string `json:"mappack_id"`
-	TrackID   string `json:"track_id"`
+	MappackID string `gorm:"primaryKey" json:"mappack_id"`
+	TrackID   string `gorm:"primaryKey" json:"track_id"`
 	// time goals for track in mappack
-	TimeGoalMappackTrack []*TimeGoalMappackTrack
+	TimeGoalMappackTrack []TimeGoalMappackTrack `gorm:"foreignKey:MappackID,TrackID;references:MappackID,TrackID"`
 	CreatedAt            time.Time
 	Tier                 string `json:"tier"`
 }

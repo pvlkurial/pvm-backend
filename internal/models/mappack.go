@@ -10,4 +10,5 @@ type Mappack struct {
 	UpdatedAt    time.Time
 	IsActive     bool `json:"isActive"`
 	TimeGoals    []*TimeGoal
+	MapStyle     MapStyle `gorm:"foreignKey:Name"`
 }

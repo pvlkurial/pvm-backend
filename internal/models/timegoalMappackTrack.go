@@ -4,10 +4,10 @@ import "time"
 
 // "Instance" of Time goal type for a track in a mappack
 type TimeGoalMappackTrack struct {
-	ID             int `gorm:"primaryKey"`
-	TimeGoalID     int `json:"time_goal_id"`
-	MappackTrackID int `json:"mappack_track_id"`
-	Time           int `json:"time"`
-	UpdatedAt      time.Time
-	TimeGoal       TimeGoal `gorm:"foreignKey:TimeGoalID"`
+	TimeGoalID int    `gorm:"primaryKey"`
+	MappackID  string `gorm:"primaryKey"`
+	TrackID    string `gorm:"primaryKey"`
+	Time       int    `json:"time"`
+	UpdatedAt  time.Time
+	TimeGoal   TimeGoal `gorm:"foreignKey:TimeGoalID"`
 }

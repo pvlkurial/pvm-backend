@@ -33,7 +33,7 @@ func (t *trackRepository) Create(track *models.Track) error {
 
 func (t *trackRepository) GetById(id string) (models.Track, error) {
 	track := models.Track{}
-	err := t.db.Where("ID = ?", id).First(track).Error
+	err := t.db.Where("ID = ?", id).First(&track).Error
 	return track, err
 }
 
@@ -48,26 +48,21 @@ func (t *trackRepository) AddTrackToMappack(mappackTrack *models.MappackTrack) e
 }
 
 func (t *trackRepository) RemoveTrackFromMappack(trackId string, mappackId string) error {
-	var mappackTrack models.MappackTrack
-	res := t.db.Select("id").Where("track_id = ?", trackId).Where("mappack_id = ?", mappackId).First(&mappackTrack)
-	if res != nil {
-		return t.db.Where("mappack_track_id = ?", mappackTrack.ID).Delete(&models.TimeGoalMappackTrack{}).Error
+	err := t.db.Where("track_id = ? AND mappack_id = ?", trackId, mappackId).Delete(&models.TimeGoalMappackTrack{}).Error
+	if err != nil {
+		return err
 	}
-	return t.db.Where("track_id = ?", trackId).Where("mappack_id = ?", mappackId).Delete(&models.MappackTrack{}).Error
+	return t.db.Where("track_id = ? AND mappack_id = ?", trackId, mappackId).Delete(&models.MappackTrack{}).Error
 }
 
 func (t *trackRepository) CreateTimeGoalsForTrack(timegoals *[]models.TimeGoalMappackTrack) error {
 	return t.db.Create(timegoals).Error
 }
+
 func (t *trackRepository) GetTimeGoalsForTrack(trackId string, mappackId string) ([]models.TimeGoalMappackTrack, error) {
-	var mappackTrack models.MappackTrack
-	timegoals := []models.TimeGoalMappackTrack{}
-	res := t.db.Select("id").Where("track_id = ?", trackId).Where("mappack_id = ?", mappackId).First(&mappackTrack)
-	if res != nil {
-		err := t.db.Where("mappack_track_id = ?", mappackTrack.ID).Find(&timegoals).Error
-		return timegoals, err
-	}
-	return timegoals, res.Error
+	var timegoals []models.TimeGoalMappackTrack
+	err := t.db.Where("track_id = ? AND mappack_id = ?", trackId, mappackId).Find(&timegoals).Error
+	return timegoals, err
 }
 
 func (t *trackRepository) UpdateTimeGoalsForTrack(timegoals *[]models.TimeGoalMappackTrack) error {
@@ -75,7 +70,7 @@ func (t *trackRepository) UpdateTimeGoalsForTrack(timegoals *[]models.TimeGoalMa
 }
 func (t *trackRepository) GetTrackInMappackInfo(mappackId string, trackId string) (models.MappackTrack, error) {
 	mappackTrack := models.MappackTrack{}
-	err := t.db.Where("mappack_id = ? AND track_id = ?", mappackId, trackId).First(mappackTrack).Error
+	err := t.db.Where("mappack_id = ? AND track_id = ?", mappackId, trackId).First(&mappackTrack).Error
 	return mappackTrack, err
 }
 

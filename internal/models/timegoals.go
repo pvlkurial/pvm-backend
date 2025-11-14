@@ -4,9 +4,9 @@ import "time"
 
 // Time Goal Type: Alien Time, Bronze Time, etc...
 type TimeGoal struct {
-	ID                   int    `gorm:"primary_key"`
-	Name                 string `json:"name"`
-	MappackID            string `json:"mappack_id"`
-	TimeGoalMappackTrack []*TimeGoalMappackTrack
+	ID                   int                    `gorm:"primary_key"`
+	Name                 string                 `json:"name"`
+	MappackID            string                 `json:"mappack_id"`
+	TimeGoalMappackTrack []TimeGoalMappackTrack `gorm:"foreignKey:TimeGoalID"`
 	UpdatedAt            time.Time
 }

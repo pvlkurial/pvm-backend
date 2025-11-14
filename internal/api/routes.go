@@ -4,7 +4,6 @@ import (
 	"example/pvm-backend/internal/controllers"
 	"example/pvm-backend/internal/repositories"
 	"example/pvm-backend/internal/services"
-	"example/pvm-backend/internal/transport/handlers"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
@@ -17,8 +16,6 @@ type Routes struct {
 }
 
 func (r *Routes) InitRoutes() {
-
-	tokenManager := handlers.TokenManager{}
 
 	repositories := repositories.NewRepositories(r.DB)
 	services := services.NewServices(*repositories)
