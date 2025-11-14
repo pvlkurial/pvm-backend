@@ -18,6 +18,10 @@ type recordRepository struct {
 	DB *gorm.DB
 }
 
+func NewRecordRepository(db *gorm.DB) RecordRepository {
+	return &recordRepository{DB: db}
+}
+
 func (t *recordRepository) Create(record *models.Record) error {
 	return t.DB.Save(&record).Error
 }

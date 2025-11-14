@@ -5,8 +5,6 @@ import (
 	"example/pvm-backend/internal/models/dtos"
 	"example/pvm-backend/internal/repositories"
 	"fmt"
-
-	"gorm.io/gorm"
 )
 
 type RecordService interface {
@@ -54,11 +52,10 @@ func (t *recordService) SaveFetchedRecords(records *[]models.Record) error {
 	}
 
 	for _, record := range *records {
-		var player models.Player
-		playerResult := t.recordRepository.DB.First(&player, "id = ?", record.PlayerID)
-		if playerResult.Error == gorm.ErrRecordNotFound {
+		_, err := t.playerRepository.GetById(record.PlayerID)
+		if err != nil {
 			fmt.Printf("Player %s not found.\n", record.PlayerID)
-			err := t.playerRepository.Create(&models.Player{ID: record.PlayerID})
+			err = t.playerRepository.Create(&models.Player{ID: record.PlayerID})
 			if err != nil {
 				fmt.Printf("Error creating player %s: %v\n", record.PlayerID, err)
 				continue
@@ -66,7 +63,7 @@ func (t *recordService) SaveFetchedRecords(records *[]models.Record) error {
 			fmt.Printf("Player %s created.\n", record.PlayerID)
 		}
 
-		err := t.recordRepository.Create(&record)
+		err = t.recordRepository.Create(&record)
 		if err != nil {
 			fmt.Printf("Error creating record: %v\n", err)
 			return err

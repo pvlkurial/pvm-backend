@@ -13,6 +13,10 @@ type MappackController struct {
 	mappackService services.MappackService
 }
 
+func NewMappackController(mappackService services.MappackService) *MappackController {
+	return &MappackController{mappackService: mappackService}
+}
+
 func (t *MappackController) Create(c *gin.Context) {
 	mappack := models.Mappack{}
 

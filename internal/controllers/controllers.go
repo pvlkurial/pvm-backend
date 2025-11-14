@@ -1,14 +1,20 @@
 package controllers
 
+import "example/pvm-backend/internal/services"
+
 type Controllers struct {
-	mappackController MappackController
-	playerController  PlayerController
-	recordController  RecordController
-	trackController   TrackController
+	MappackController MappackController
+	PlayerController  PlayerController
+	RecordController  RecordController
+	TrackController   TrackController
 }
 
-func NewControllers(mappackController MappackController, playerController PlayerController,
-	recordController RecordController, trackController TrackController) *Controllers {
-	return &Controllers{mappackController: mappackController, playerController: playerController,
-		recordController: recordController, trackController: trackController}
+func NewControllers(services services.Services) *Controllers {
+	mappackController := NewMappackController(services.MappackService)
+	playerController := NewPlayerController(services.PlayerService)
+	recordController := NewRecordController(services.RecordService, services.TracksService)
+	trackController := NewTrackController(services.TracksService)
+
+	return &Controllers{MappackController: *mappackController, PlayerController: *playerController,
+		RecordController: *recordController, TrackController: *trackController}
 }

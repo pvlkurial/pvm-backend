@@ -15,6 +15,10 @@ type TrackController struct {
 	TokenManager *handlers.TokenManager
 }
 
+func NewTrackController(trackService services.TrackService) *TrackController {
+	return &TrackController{trackService: trackService}
+}
+
 func (t *TrackController) Create(c *gin.Context) {
 	trackTemp := models.Track{}
 

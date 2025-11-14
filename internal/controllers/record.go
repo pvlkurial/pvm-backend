@@ -19,6 +19,10 @@ type RecordController struct {
 	trackService  services.TrackService
 }
 
+func NewRecordController(recordService services.RecordService, trackService services.TrackService) *RecordController {
+	return &RecordController{recordService: recordService, trackService: trackService}
+}
+
 func (t *RecordController) Create(c *gin.Context) {
 	record := models.Record{}
 

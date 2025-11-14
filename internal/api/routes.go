@@ -2,7 +2,7 @@ package api
 
 import (
 	"example/pvm-backend/internal/controllers"
-	"example/pvm-backend/internal/database"
+	"example/pvm-backend/internal/repositories"
 	"example/pvm-backend/internal/services"
 	"example/pvm-backend/internal/transport/handlers"
 
@@ -20,21 +20,9 @@ func (r *Routes) InitRoutes() {
 
 	tokenManager := handlers.TokenManager{}
 
-	trackRepository := &database.TrackRepository{DB: r.DB}
-	trackService := &services.TrackService{TrackRepository: trackRepository}
-	trackHandler := &handlers.TrackHandler{TrackService: trackService, TokenManager: &tokenManager}
-
-	playerRepository := &database.PlayerRepository{DB: r.DB}
-	playerService := &services.PlayerService{PlayerRepository: playerRepository}
-	playerHandler := &handlers.PlayerHandler{PlayerService: playerService}
-
-	mappackRepository := &database.MappackRepository{DB: r.DB}
-	mappackService := &services.MappackService{MappackRepository: mappackRepository}
-	mappackHandler := &controllers.MappackController{MappackService: mappackService}
-
-	recordRepository := &database.RecordRepository{DB: r.DB}
-	recordService := &services.RecordService{RecordRepository: recordRepository, PlayerRepository: playerRepository, TrackRepository: trackRepository}
-	recordHandler := &handlers.RecordHandler{RecordService: recordService, TokenManager: &tokenManager, TrackService: trackService}
+	repositories := repositories.NewRepositories(r.DB)
+	services := services.NewServices(*repositories)
+	controllers := controllers.NewControllers(*services)
 
 	r.Use(cors.New(cors.Config{
 		AllowOrigins:     []string{"*"},
@@ -43,35 +31,35 @@ func (r *Routes) InitRoutes() {
 		AllowCredentials: true,
 	}))
 
-	r.POST("/tracks", trackHandler.Create)
-	r.GET("/tracks/:track_id", trackHandler.GetById)
+	r.POST("/tracks", controllers.TrackController.Create)
+	r.GET("/tracks/:track_id", controllers.TrackController.GetById)
 	r.DELETE("/tracks/:track_id")
 
-	r.POST("/players", playerHandler.Create)
-	r.GET("/players", playerHandler.GetAll)
+	r.POST("/players", controllers.PlayerController.Create)
+	r.GET("/players", controllers.PlayerController.GetAll)
 
-	r.POST("/mappacks/:mappack_id/timegoals", mappackHandler.CreateMappackTimeGoal)
-	r.GET("/mappacks/:mappack_id/timegoals", mappackHandler.GetAllMappackTimeGoals)
-	r.DELETE("/mappacks/:mappack_id/timegoals/:timegoal_id", mappackHandler.RemoveTimeGoalFromMappack)
+	r.POST("/mappacks/:mappack_id/timegoals", controllers.MappackController.CreateMappackTimeGoal)
+	r.GET("/mappacks/:mappack_id/timegoals", controllers.MappackController.GetAllMappackTimeGoals)
+	r.DELETE("/mappacks/:mappack_id/timegoals/:timegoal_id", controllers.MappackController.RemoveTimeGoalFromMappack)
 
-	r.POST("/mappacks", mappackHandler.Create)
-	r.GET("/mappacks", mappackHandler.GetAll)
-	r.GET("/mappacks/:mappack_id", mappackHandler.GetById)
+	r.POST("/mappacks", controllers.MappackController.Create)
+	r.GET("/mappacks", controllers.MappackController.GetAll)
+	r.GET("/mappacks/:mappack_id", controllers.MappackController.GetById)
 
-	r.GET("/mappacks/:mappack_id/tracks", trackHandler.GetByMappackId)
-	r.POST("/mappacks/:mappack_id/tracks/:track_id", trackHandler.AddTrackToMappack)
-	r.DELETE("/mappacks/:mappack_id/tracks/:track_id", trackHandler.RemoveTrackFromMappack)
+	r.GET("/mappacks/:mappack_id/tracks", controllers.TrackController.GetByMappackId)
+	r.POST("/mappacks/:mappack_id/tracks/:track_id", controllers.TrackController.AddTrackToMappack)
+	r.DELETE("/mappacks/:mappack_id/tracks/:track_id", controllers.TrackController.RemoveTrackFromMappack)
 
-	r.POST("/mappacks/:mappack_id/tracks/:track_id/timegoals", trackHandler.CreateTimeGoalsForTrack)
-	r.GET("/mappacks/:mappack_id/tracks/:track_id/timegoals", trackHandler.GetTimeGoalsForTrack)
-	r.PATCH("/mappacks/:mappack_id/tracks/:track_id/timegoals", trackHandler.UpdateTimeGoalsForTrack)
+	r.POST("/mappacks/:mappack_id/tracks/:track_id/timegoals", controllers.TrackController.CreateTimeGoalsForTrack)
+	r.GET("/mappacks/:mappack_id/tracks/:track_id/timegoals", controllers.TrackController.GetTimeGoalsForTrack)
+	r.PATCH("/mappacks/:mappack_id/tracks/:track_id/timegoals", controllers.TrackController.UpdateTimeGoalsForTrack)
 
-	r.POST("/records", recordHandler.Create)
-	r.POST("/tracks/:track_id/records", recordHandler.FetchNewTrackRecords)
-	r.GET("/tracks/:track_id/records", recordHandler.GetByTrackId)
-	r.POST("/tracks/track_id/records/:player_id", recordHandler.GetPlayersRecordsForTrack)
+	r.POST("/records", controllers.RecordController.Create)
+	r.POST("/tracks/:track_id/records", controllers.RecordController.FetchNewTrackRecords)
+	r.GET("/tracks/:track_id/records", controllers.RecordController.GetByTrackId)
+	r.POST("/tracks/track_id/records/:player_id", controllers.RecordController.GetPlayersRecordsForTrack)
 
-	r.GET("mappacks/:mappack_id/tracks/:track_id", recordHandler.GetTrackWithRecords)
+	r.GET("mappacks/:mappack_id/tracks/:track_id", controllers.RecordController.GetTrackWithRecords)
 
 	r.Run("localhost:8080")
 }

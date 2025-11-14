@@ -1,14 +1,21 @@
 package repositories
 
+import "gorm.io/gorm"
+
 type Repositories struct {
-	mappackRepository MappackRepository
-	playerRepository  PlayerRepository
-	recordRepository  RecordRepository
-	trackRepository   TrackRepository
+	MappackRepository MappackRepository
+	PlayerRepository  PlayerRepository
+	RecordRepository  RecordRepository
+	TrackRepository   TrackRepository
 }
 
-func NewRepositories(mappackRepository MappackRepository, playerRepository PlayerRepository,
-	recordRepository RecordRepository, trackRepository TrackRepository) *Repositories {
-	return &Repositories{mappackRepository: mappackRepository, playerRepository: playerRepository,
-		recordRepository: recordRepository, trackRepository: trackRepository}
+func NewRepositories(db *gorm.DB) *Repositories {
+
+	mappackRepository := NewMappackRepository(db)
+	playerRepository := NewPlayerRepository(db)
+	recordRepository := NewRecordRepository(db)
+	trackRepository := NewTrackRepository(db)
+
+	return &Repositories{MappackRepository: mappackRepository, PlayerRepository: playerRepository,
+		RecordRepository: recordRepository, TrackRepository: trackRepository}
 }

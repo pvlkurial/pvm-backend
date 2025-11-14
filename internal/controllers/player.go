@@ -13,6 +13,10 @@ type PlayerController struct {
 	playerService services.PlayerService
 }
 
+func NewPlayerController(playerService services.PlayerService) *PlayerController {
+	return &PlayerController{playerService: playerService}
+}
+
 func (t *PlayerController) Create(c *gin.Context) {
 	player := models.Player{}
 
