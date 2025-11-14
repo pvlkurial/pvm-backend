@@ -1,8 +1,14 @@
 package services
 
 import (
+	"errors"
+	"example/pvm-backend/internal/clients"
 	"example/pvm-backend/internal/models"
 	"example/pvm-backend/internal/repositories"
+	"fmt"
+	"time"
+
+	"gorm.io/gorm"
 )
 
 type TrackService interface {
@@ -19,10 +25,11 @@ type TrackService interface {
 
 type trackService struct {
 	trackRepository repositories.TrackRepository
+	client          *clients.NadeoAPIClient
 }
 
-func NewTrackService(repo repositories.TrackRepository) TrackService {
-	return &trackService{trackRepository: repo}
+func NewTrackService(repo repositories.TrackRepository, client *clients.NadeoAPIClient) TrackService {
+	return &trackService{trackRepository: repo, client: client}
 }
 
 func (t *trackService) Create(track *models.Track) error {
@@ -38,10 +45,30 @@ func (t *trackService) GetByMappackId(id string) ([]models.Track, error) {
 }
 
 func (t *trackService) AddTrackToMappack(trackId string, mappackId string) error {
+	_, err := t.trackRepository.GetById(trackId)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			track := t.client.FetchTrackInfo(trackId)
+			if track == nil {
+				return fmt.Errorf("fetch track info: %w", err)
+			}
+
+			err = t.trackRepository.Create(track)
+			if err != nil {
+				return fmt.Errorf("create track: %w", err)
+			}
+		} else {
+			return err
+		}
+	}
+
 	mappackTrack := models.MappackTrack{
 		MappackID: mappackId,
 		TrackID:   trackId,
+		CreatedAt: time.Now(),
+		Tier:      "",
 	}
+
 	return t.trackRepository.AddTrackToMappack(&mappackTrack)
 }
 

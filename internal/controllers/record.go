@@ -15,12 +15,16 @@ import (
 
 type RecordController struct {
 	recordService services.RecordService
-	client        clients.NadeoAPIClient
+	client        *clients.NadeoAPIClient
 	trackService  services.TrackService
 }
 
-func NewRecordController(recordService services.RecordService, trackService services.TrackService) *RecordController {
-	return &RecordController{recordService: recordService, trackService: trackService}
+func NewRecordController(recordService services.RecordService, trackService services.TrackService,
+	client *clients.NadeoAPIClient) *RecordController {
+	return &RecordController{
+		recordService: recordService,
+		trackService:  trackService,
+		client:        client}
 }
 
 func (t *RecordController) Create(c *gin.Context) {

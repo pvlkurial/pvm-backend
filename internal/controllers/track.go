@@ -6,6 +6,7 @@ import (
 	"example/pvm-backend/internal/services"
 	"fmt"
 	"net/http"
+	"time"
 
 	"github.com/gin-gonic/gin"
 )
@@ -69,7 +70,7 @@ func (t *TrackController) AddTrackToMappack(c *gin.Context) {
 	err := t.trackService.AddTrackToMappack(trackId, mappackId)
 
 	if err != nil {
-		fmt.Printf("Error occured while creating a Track: %s", err)
+		fmt.Printf("Error occured while Adding a track to mappack: %s", err)
 		c.String(http.StatusInternalServerError, "Internal Server Error")
 	} else {
 		c.String(http.StatusOK, "Added track to mappack succesfully")
@@ -91,22 +92,38 @@ func (t *TrackController) RemoveTrackFromMappack(c *gin.Context) {
 }
 
 func (t *TrackController) CreateTimeGoalsForTrack(c *gin.Context) {
-	var timegoals []models.TimeGoalMappackTrack
-
-	err := c.ShouldBind(&timegoals)
-	if err != nil {
-		fmt.Printf("Error occured while binding timegoals during creation/adding: %s", err)
-		c.String(http.StatusInternalServerError, "Internal Server Error")
+	mappackId := c.Param("mappack_id")
+	trackId := c.Param("track_id")
+	var request []struct {
+		TimeGoalID int `json:"time_goal_id"`
+		Time       int `json:"time"`
 	}
 
-	err = t.trackService.CreateTimeGoalsForTrack(&timegoals)
-
-	if err != nil {
-		fmt.Printf("Error occured while creating a timegoal: %s", err)
-		c.String(http.StatusInternalServerError, "Internal Server Error")
-	} else {
-		c.String(http.StatusOK, "Creation Succesful")
+	if err := c.ShouldBindJSON(&request); err != nil {
+		fmt.Printf("Error binding timegoals: %s\n", err)
+		c.String(http.StatusBadRequest, "Invalid request body")
+		return
 	}
+
+	timegoals := make([]models.TimeGoalMappackTrack, len(request))
+	for i, r := range request {
+		timegoals[i] = models.TimeGoalMappackTrack{
+			TimeGoalID: r.TimeGoalID,
+			MappackID:  mappackId,
+			TrackID:    trackId,
+			Time:       r.Time,
+			UpdatedAt:  time.Now(),
+		}
+	}
+
+	err := t.trackService.CreateTimeGoalsForTrack(&timegoals)
+	if err != nil {
+		fmt.Printf("Error creating timegoal: %s\n", err)
+		c.String(http.StatusInternalServerError, "Internal Server Error")
+		return
+	}
+
+	c.String(http.StatusOK, "Creation Successful")
 }
 
 func (t *TrackController) GetTimeGoalsForTrack(c *gin.Context) {

@@ -1,6 +1,7 @@
 package api
 
 import (
+	"example/pvm-backend/internal/clients"
 	"example/pvm-backend/internal/controllers"
 	"example/pvm-backend/internal/repositories"
 	"example/pvm-backend/internal/services"
@@ -16,10 +17,10 @@ type Routes struct {
 }
 
 func (r *Routes) InitRoutes() {
-
+	nadeoClient := clients.NewNadeoAPIClient()
 	repositories := repositories.NewRepositories(r.DB)
-	services := services.NewServices(*repositories)
-	controllers := controllers.NewControllers(*services)
+	services := services.NewServices(*repositories, nadeoClient)
+	controllers := controllers.NewControllers(*services, nadeoClient)
 
 	r.Use(cors.New(cors.Config{
 		AllowOrigins:     []string{"*"},

@@ -1,6 +1,9 @@
 package controllers
 
-import "example/pvm-backend/internal/services"
+import (
+	"example/pvm-backend/internal/clients"
+	"example/pvm-backend/internal/services"
+)
 
 type Controllers struct {
 	MappackController MappackController
@@ -9,10 +12,10 @@ type Controllers struct {
 	TrackController   TrackController
 }
 
-func NewControllers(services services.Services) *Controllers {
+func NewControllers(services services.Services, client *clients.NadeoAPIClient) *Controllers {
 	mappackController := NewMappackController(services.MappackService)
 	playerController := NewPlayerController(services.PlayerService)
-	recordController := NewRecordController(services.RecordService, services.TracksService)
+	recordController := NewRecordController(services.RecordService, services.TracksService, client)
 	trackController := NewTrackController(services.TracksService)
 
 	return &Controllers{MappackController: *mappackController, PlayerController: *playerController,

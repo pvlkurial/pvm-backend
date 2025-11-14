@@ -1,6 +1,9 @@
 package services
 
-import "example/pvm-backend/internal/repositories"
+import (
+	"example/pvm-backend/internal/clients"
+	"example/pvm-backend/internal/repositories"
+)
 
 type Services struct {
 	MappackService MappackService
@@ -9,12 +12,12 @@ type Services struct {
 	TracksService  TrackService
 }
 
-func NewServices(repositories repositories.Repositories) *Services {
+func NewServices(repositories repositories.Repositories, client *clients.NadeoAPIClient) *Services {
 	mappackService := NewMappackService(repositories.MappackRepository)
 	playerService := NewPlayerService(repositories.PlayerRepository)
 	recordService := NewRecordService(repositories.RecordRepository,
 		repositories.PlayerRepository, repositories.TrackRepository)
-	trackService := NewTrackService(repositories.TrackRepository)
+	trackService := NewTrackService(repositories.TrackRepository, client)
 
 	return &Services{
 		MappackService: mappackService,

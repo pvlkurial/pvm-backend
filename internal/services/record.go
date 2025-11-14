@@ -89,7 +89,6 @@ func (t *recordService) GetTrackWithRecords(mappackId string, trackId string) (d
 		return emptyTrack, err
 	}
 
-	// Use composite key instead of single ID
 	trackTimeGoals, err := t.recordRepository.GetTrackTimeGoalsTimes(mappackId, trackId)
 	if err != nil {
 		return emptyTrack, err

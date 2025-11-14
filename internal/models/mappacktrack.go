@@ -9,4 +9,5 @@ type MappackTrack struct {
 	TimeGoalMappackTrack []TimeGoalMappackTrack `gorm:"foreignKey:MappackID,TrackID;references:MappackID,TrackID"`
 	CreatedAt            time.Time
 	Tier                 string `json:"tier"`
+	MapStyle             string `json:"mapStyle"`
 }

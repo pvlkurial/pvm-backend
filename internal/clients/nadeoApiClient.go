@@ -177,13 +177,12 @@ func (c *NadeoAPIClient) DoAuthenticatedRequest(req *http.Request, audience stri
 }
 
 func (t *NadeoAPIClient) FetchTrackInfo(trackid string) *models.Track {
-	t.GetToken(constants.NadeoServices)
 	req, err := http.NewRequest("GET", "https://prod.trackmania.core.nadeo.online/maps/"+trackid, nil)
 	if err != nil {
 		fmt.Println(err)
 		return nil
 	}
-	resp, err := t.DoAuthenticatedRequest(req, constants.NadeoLiveServices)
+	resp, err := t.DoAuthenticatedRequest(req, constants.NadeoServices)
 	if err != nil {
 		fmt.Println(err)
 		return nil
