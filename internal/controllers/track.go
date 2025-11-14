@@ -10,12 +10,12 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type TrackHandler struct {
+type TrackController struct {
 	trackService services.TrackService
 	TokenManager *handlers.TokenManager
 }
 
-func (t *TrackHandler) Create(c *gin.Context) {
+func (t *TrackController) Create(c *gin.Context) {
 	trackTemp := models.Track{}
 
 	err := c.ShouldBind(&trackTemp)
@@ -36,7 +36,7 @@ func (t *TrackHandler) Create(c *gin.Context) {
 	}
 }
 
-func (t *TrackHandler) GetById(c *gin.Context) {
+func (t *TrackController) GetById(c *gin.Context) {
 	id := c.Param("track_id")
 	track, err := t.trackService.GetById(id)
 	if err != nil {
@@ -47,7 +47,7 @@ func (t *TrackHandler) GetById(c *gin.Context) {
 	}
 }
 
-func (t *TrackHandler) GetByMappackId(c *gin.Context) {
+func (t *TrackController) GetByMappackId(c *gin.Context) {
 	id := c.Param("mappack_id")
 	tracks, err := t.trackService.GetByMappackId(id)
 	if err != nil {
@@ -58,7 +58,7 @@ func (t *TrackHandler) GetByMappackId(c *gin.Context) {
 	}
 }
 
-func (t *TrackHandler) AddTrackToMappack(c *gin.Context) {
+func (t *TrackController) AddTrackToMappack(c *gin.Context) {
 	trackId := c.Param("track_id")
 	mappackId := c.Param("mappack_id")
 
@@ -72,7 +72,7 @@ func (t *TrackHandler) AddTrackToMappack(c *gin.Context) {
 	}
 }
 
-func (t *TrackHandler) RemoveTrackFromMappack(c *gin.Context) {
+func (t *TrackController) RemoveTrackFromMappack(c *gin.Context) {
 	trackId := c.Param("track_id")
 	mappackId := c.Param("mappack_id")
 
@@ -86,7 +86,7 @@ func (t *TrackHandler) RemoveTrackFromMappack(c *gin.Context) {
 	}
 }
 
-func (t *TrackHandler) CreateTimeGoalsForTrack(c *gin.Context) {
+func (t *TrackController) CreateTimeGoalsForTrack(c *gin.Context) {
 	var timegoals []models.TimeGoalMappackTrack
 
 	err := c.ShouldBind(&timegoals)
@@ -105,7 +105,7 @@ func (t *TrackHandler) CreateTimeGoalsForTrack(c *gin.Context) {
 	}
 }
 
-func (t *TrackHandler) GetTimeGoalsForTrack(c *gin.Context) {
+func (t *TrackController) GetTimeGoalsForTrack(c *gin.Context) {
 	trackId := c.Param("track_id")
 	mappackId := c.Param("mappack_id")
 
@@ -119,7 +119,7 @@ func (t *TrackHandler) GetTimeGoalsForTrack(c *gin.Context) {
 	}
 }
 
-func (t *TrackHandler) UpdateTimeGoalsForTrack(c *gin.Context) {
+func (t *TrackController) UpdateTimeGoalsForTrack(c *gin.Context) {
 	var timegoals []models.TimeGoalMappackTrack
 
 	err := c.ShouldBind(&timegoals)
