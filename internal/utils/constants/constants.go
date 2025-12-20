@@ -7,4 +7,8 @@ const (
 	TokenExpirationBufferInMinutes = 1
 	NadeoServices                  = "NadeoServices"
 	NadeoLiveServices              = "NadeoLiveServices"
+	RecordsPerRequest              = 25
+	TimesOfRecordsFetchPerTrack    = 5
+	FetchIntervalInHours           = 24
+	FetchIntervalDelayInSeconds    = 2
 )

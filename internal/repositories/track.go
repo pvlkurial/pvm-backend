@@ -9,6 +9,7 @@ import (
 type TrackRepository interface {
 	Create(track *models.Track) error
 	GetById(id string) (models.Track, error)
+	GetAll() ([]models.Track, error)
 	GetByMappackId(id string) ([]models.Track, error)
 	AddTrackToMappack(mappackTrack *models.MappackTrack) error
 	RemoveTrackFromMappack(trackId string, mappackId string) error
@@ -35,6 +36,11 @@ func (t *trackRepository) GetById(id string) (models.Track, error) {
 	track := models.Track{}
 	err := t.db.Where("ID = ?", id).First(&track).Error
 	return track, err
+}
+func (t *trackRepository) GetAll() ([]models.Track, error) {
+	var tracks []models.Track
+	err := t.db.Find(&tracks).Error
+	return tracks, err
 }
 
 func (t *trackRepository) GetByMappackId(id string) ([]models.Track, error) {

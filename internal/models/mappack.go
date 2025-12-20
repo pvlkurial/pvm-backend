@@ -11,4 +11,6 @@ type Mappack struct {
 	IsActive     bool `json:"isActive"`
 	TimeGoals    []*TimeGoal
 	MapStyle     MapStyle `gorm:"foreignKey:Name" json:"mapStyle"`
+	ThumbnailURL string   `json:"thumbnailURL"`
+	Description  string   `json:"description"`
 }

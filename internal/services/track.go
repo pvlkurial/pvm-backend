@@ -14,6 +14,7 @@ import (
 type TrackService interface {
 	Create(track *models.Track) error
 	GetById(id string) (models.Track, error)
+	GetAll() ([]models.Track, error)
 	GetByMappackId(id string) ([]models.Track, error)
 	AddTrackToMappack(trackId string, mappackId string) error
 	RemoveTrackFromMappack(trackId string, mappackId string) error
@@ -38,6 +39,10 @@ func (t *trackService) Create(track *models.Track) error {
 
 func (t *trackService) GetById(id string) (models.Track, error) {
 	return t.trackRepository.GetById(id)
+}
+
+func (t *trackService) GetAll() ([]models.Track, error) {
+	return t.trackRepository.GetAll()
 }
 
 func (t *trackService) GetByMappackId(id string) ([]models.Track, error) {

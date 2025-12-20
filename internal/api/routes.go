@@ -5,6 +5,7 @@ import (
 	"example/pvm-backend/internal/controllers"
 	"example/pvm-backend/internal/repositories"
 	"example/pvm-backend/internal/services"
+	"example/pvm-backend/internal/workers"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
@@ -21,6 +22,9 @@ func (r *Routes) InitRoutes() {
 	repositories := repositories.NewRepositories(r.DB)
 	services := services.NewServices(*repositories, nadeoClient)
 	controllers := controllers.NewControllers(*services, nadeoClient)
+
+	workers := workers.NewWorkers(*services, *nadeoClient)
+	workers.NadeoWorker.Start()
 
 	r.Use(cors.New(cors.Config{
 		AllowOrigins:     []string{"*"},
