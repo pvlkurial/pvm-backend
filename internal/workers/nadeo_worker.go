@@ -45,6 +45,14 @@ func (n *nadeoWorker) Start() {
 						if err != nil {
 							fmt.Printf("Error in nadeo worker while saving records: %v\n", err)
 						}
+						for _, mappackTrack := range track.MappackTrack {
+							for _, record := range records {
+								if n.trackService.SavePlayerMappackTrack(mappackTrack.MappackID, mappackTrack.TrackID,
+									record.Player.ID, record.RecordTime); err != nil {
+									fmt.Printf("Error in nadeo worker while saving player mappack track: %v\n", err)
+								}
+							}
+						}
 						time.Sleep(constants.FetchIntervalDelayInSeconds * time.Second)
 					}
 				}

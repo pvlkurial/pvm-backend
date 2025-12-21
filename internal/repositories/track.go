@@ -18,6 +18,7 @@ type TrackRepository interface {
 	UpdateTimeGoalsForTrack(timegoals *[]models.TimeGoalMappackTrack) error
 	GetTrackInMappackInfo(mappackId string, trackId string) (models.MappackTrack, error)
 	GetByUID(uid string) (models.Track, error)
+	SavePlayerMappackTrack(playerMappackTrack *models.PlayerMappackTrack) error
 }
 
 type trackRepository struct {
@@ -84,4 +85,8 @@ func (t *trackRepository) GetByUID(uid string) (models.Track, error) {
 	track := models.Track{}
 	err := t.db.Where("map_uid = ?", uid).First(&track).Error
 	return track, err
+}
+
+func (t *trackRepository) SavePlayerMappackTrack(playerMappackTrack *models.PlayerMappackTrack) error {
+	return t.db.Save(playerMappackTrack).Error
 }
