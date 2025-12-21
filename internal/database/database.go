@@ -1,6 +1,7 @@
 package database
 
 import (
+	"example/pvm-backend/internal/database/seeds"
 	"example/pvm-backend/internal/models"
 	"os"
 
@@ -24,7 +25,7 @@ func ConnectDatabase() *gorm.DB {
 }
 
 func MigrateDatabase(db *gorm.DB) {
-
+	db.AutoMigrate(&models.MapStyle{})
 	db.AutoMigrate(&models.Player{})
 	db.AutoMigrate(&models.Mappack{})
 	db.AutoMigrate(&models.Track{})
@@ -32,4 +33,9 @@ func MigrateDatabase(db *gorm.DB) {
 	db.AutoMigrate(&models.MappackTrack{})
 	db.AutoMigrate(&models.TimeGoal{})
 	db.AutoMigrate(&models.TimeGoalMappackTrack{})
+}
+
+func SeedDatabase(db *gorm.DB) {
+	seeders := seeds.NewSeeders(db)
+	seeders.SeedAll()
 }
