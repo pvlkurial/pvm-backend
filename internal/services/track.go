@@ -108,7 +108,8 @@ func (t *trackService) SavePlayerMappackTrack(mappackId string, trackId string, 
 	}
 	playerMappackTrack := models.PlayerMappackTrack{
 		PlayerID:         playerId,
-		MappackTrackID:   mappackId,
+		MappackID:        mappackId,
+		TrackID:          trackId,
 		Score:            achievedTime,
 		AchievedTimeGoal: achievedTimeGoal,
 	}

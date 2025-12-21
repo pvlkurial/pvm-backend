@@ -39,7 +39,9 @@ func (t *recordRepository) GetByTrackId(id string) ([]models.Record, error) {
 		Where("track_id = ?", id).
 		Group("player_id")
 
-	err := t.DB.Joins("INNER JOIN (?) as latest ON records.player_id = latest.player_id AND records.updated_at = latest.max_time", subQuery).
+	err := t.DB.
+		Preload("Player").
+		Joins("INNER JOIN (?) as latest ON records.player_id = latest.player_id AND records.updated_at = latest.max_time", subQuery).
 		Where("records.track_id = ?", id).
 		Find(&records).Error
 

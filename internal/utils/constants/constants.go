@@ -11,4 +11,6 @@ const (
 	TimesOfRecordsFetchPerTrack    = 5
 	FetchIntervalInHours           = 24
 	FetchIntervalDelayInSeconds    = 2
+	NadeoOAuthTokenURL             = "https://api.trackmania.com/api/access_token"
+	NadeoAPIBaseURL                = "https://api.trackmania.com/api"
 )

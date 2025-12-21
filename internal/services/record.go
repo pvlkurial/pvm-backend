@@ -1,6 +1,7 @@
 package services
 
 import (
+	"example/pvm-backend/internal/clients"
 	"example/pvm-backend/internal/models"
 	"example/pvm-backend/internal/models/dtos"
 	"example/pvm-backend/internal/repositories"
@@ -21,12 +22,18 @@ type recordService struct {
 	recordRepository repositories.RecordRepository
 	playerRepository repositories.PlayerRepository
 	trackRepository  repositories.TrackRepository
+	trackmaniaClient clients.TrackmaniaAPIClient
 }
 
 func NewRecordService(recordRepo repositories.RecordRepository,
 	playerRepo repositories.PlayerRepository,
-	trackRepo repositories.TrackRepository) RecordService {
-	return &recordService{recordRepository: recordRepo, playerRepository: playerRepo, trackRepository: trackRepo}
+	trackRepo repositories.TrackRepository,
+	trackmaniaClient clients.TrackmaniaAPIClient) RecordService {
+	return &recordService{
+		recordRepository: recordRepo,
+		playerRepository: playerRepo,
+		trackRepository:  trackRepo,
+		trackmaniaClient: trackmaniaClient}
 }
 
 func (t *recordService) Create(record *models.Record) error {
@@ -49,23 +56,32 @@ func (t *recordService) SaveFetchedRecords(records *[]models.Record) error {
 	if records == nil || len(*records) == 0 {
 		return nil
 	}
-
+	nonFoundPlayers := make([]string, 0)
 	for _, record := range *records {
 		_, err := t.playerRepository.GetById(record.PlayerID)
 		if err != nil {
 			fmt.Printf("Player %s not found.\n", record.PlayerID)
-			err = t.playerRepository.Create(&models.Player{ID: record.PlayerID})
-			if err != nil {
-				fmt.Printf("Error creating player %s: %v\n", record.PlayerID, err)
-				continue
-			}
-			fmt.Printf("Player %s created.\n", record.PlayerID)
+			nonFoundPlayers = append(nonFoundPlayers, record.PlayerID)
 		}
-
-		err = t.recordRepository.Create(&record)
+	}
+	if len(nonFoundPlayers) > 0 {
+		players, err := t.trackmaniaClient.FetchPlayerNames(nonFoundPlayers)
 		if err != nil {
-			fmt.Printf("Error creating record: %v\n", err)
-			return err
+			return fmt.Errorf("error fetching player names: %w", err)
+		}
+		if len(players) > 0 {
+			err = t.playerRepository.UpdatePlayersDisplayNames(&players)
+			if err != nil {
+				return fmt.Errorf("error creating players: %w", err)
+			}
+			fmt.Printf("Created/updated %d players.\n", len(players))
+		}
+	}
+	for _, record := range *records {
+		err := t.recordRepository.Create(&record)
+		if err != nil {
+			fmt.Printf("Error creating record for player %s: %v\n", record.PlayerID, err)
+			continue
 		}
 	}
 	return nil

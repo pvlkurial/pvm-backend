@@ -58,3 +58,17 @@ func (t *PlayerController) GetById(c *gin.Context) {
 		c.JSON(http.StatusOK, result)
 	}
 }
+
+func (t *PlayerController) GetPlayerInfoInMappackTrackAll(c *gin.Context) {
+	playerId := c.Param("playerId")
+	mappackId := c.Param("mappackId")
+	trackId := c.Param("trackId")
+
+	result, err := t.playerService.GetPlayerInfoInMappackTrackAll(playerId, mappackId, trackId)
+	if err != nil {
+		fmt.Printf("Error occured while getting PlayerMappackTrack info: %s", err)
+		c.String(http.StatusInternalServerError, "Internal Server Error")
+	} else {
+		c.JSON(http.StatusOK, result)
+	}
+}

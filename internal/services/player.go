@@ -10,6 +10,9 @@ type PlayerService interface {
 	GetAll(players *[]models.Player) ([]models.Player, error)
 	GetById(id string) (models.Player, error)
 	Update(player *models.Player) error
+	GetPlayerInfoInMappackTrack(playerId string, mappackId string, trackId string) (models.PlayerMappackTrack, error)
+	GetPlayerInfoInMappackTrackAll(playerId string, mappackId string, trackId string) ([]models.PlayerMappackTrack, error)
+	UpdatePlayersDisplayNames(players *[]models.Player) error
 }
 
 type playerService struct {
@@ -33,4 +36,16 @@ func (t *playerService) GetById(id string) (models.Player, error) {
 
 func (t *playerService) Update(player *models.Player) error {
 	return t.playerRepository.Update(player)
+}
+
+func (t *playerService) GetPlayerInfoInMappackTrack(playerId string, mappackId string, trackId string) (models.PlayerMappackTrack, error) {
+	return t.playerRepository.GetPlayerInfoInMappackTrack(playerId, mappackId, trackId)
+}
+
+func (t *playerService) GetPlayerInfoInMappackTrackAll(playerId string, mappackId string, trackId string) ([]models.PlayerMappackTrack, error) {
+	return t.playerRepository.GetPlayerInfoInMappackTrackAll(playerId, mappackId, trackId)
+}
+
+func (t *playerService) UpdatePlayersDisplayNames(players *[]models.Player) error {
+	return t.playerRepository.UpdatePlayersDisplayNames(players)
 }

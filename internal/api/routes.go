@@ -19,8 +19,9 @@ type Routes struct {
 
 func (r *Routes) InitRoutes() {
 	nadeoClient := clients.NewNadeoAPIClient()
+	trackmaniaClient := clients.NewTrackmaniaAPIClient()
 	repositories := repositories.NewRepositories(r.DB)
-	services := services.NewServices(*repositories, nadeoClient)
+	services := services.NewServices(*repositories, nadeoClient, *trackmaniaClient)
 	controllers := controllers.NewControllers(*services, nadeoClient)
 
 	workers := workers.NewWorkers(*services, *nadeoClient)
