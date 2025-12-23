@@ -38,17 +38,14 @@ func (m *TrackSeeder) seedTracks() error {
 		{
 			MappackID: "mappack-beginner",
 			TrackID:   tracks[0].ID,
-			Tier:      "A",
 		},
 		{
 			MappackID: "mappack-advanced",
 			TrackID:   tracks[0].ID,
-			Tier:      "B",
 		},
 		{
 			MappackID: "mappack-pro",
 			TrackID:   tracks[0].ID,
-			Tier:      "C",
 		},
 	}
 	return m.DB.Save(mappackTracks).Error

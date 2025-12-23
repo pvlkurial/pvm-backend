@@ -29,6 +29,7 @@ type TrackInMappackDto struct {
 	ThumbnailURL             string             `json:"thumbnailUrl"`
 	Time                     int                `json:"time"`
 	Tier                     string             `json:"tier"`
+	DominantColor            string             `json:"dominantColor"`
 	UpdatedAt                time.Time          `json:"updatedAt"`
 	Records                  []models.Record    `json:"records,omitempty"`
 	TimeGoals                []TrackTimeGoalDto `json:"timegoals"`

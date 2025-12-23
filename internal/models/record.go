@@ -10,10 +10,10 @@ type Record struct {
 	TrackID    string    `json:"mapId" gorm:"type:uuid;column:track_id"`
 	Player     Player    `json:"player" gorm:"foreignKey:PlayerID"`
 	Track      Track     `json:"-" gorm:"foreignKey:TrackID"`
-	ZoneID     string    `json:"zoneId" gorm:"-"`
-	ZoneName   string    `json:"zoneName" gorm:"-"`
-	Position   int       `json:"position" gorm:"-"`
-	Timestamp  int64     `json:"timestamp" gorm:"-"`
+	ZoneID     string    `json:"zoneId" gorm:"column:zone_id"`
+	ZoneName   string    `json:"zoneName" gorm:"column:zone_name"`
+	Position   int       `json:"position" gorm:"column:position"`
+	Timestamp  int64     `json:"timestamp" gorm:"column:timestamp"`
 }
 
 type TrackRecordsResponse struct {

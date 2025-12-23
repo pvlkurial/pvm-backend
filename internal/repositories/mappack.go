@@ -30,7 +30,14 @@ func (t *mappackRepository) Create(mappack *models.Mappack) error {
 }
 func (t *mappackRepository) GetById(id string) (models.Mappack, error) {
 	mappack := models.Mappack{}
-	err := t.db.Where("ID = ?", id).First(&mappack).Error
+	err := t.db.
+		Preload("MappackTrack.Track").
+		Preload("MappackTrack.TimeGoalMappackTrack").
+		Preload("MappackTrack.Tier").
+		Preload("MapStyle").
+		Preload("TimeGoals").
+		Where("ID = ?", id).
+		First(&mappack).Error
 	return mappack, err
 }
 

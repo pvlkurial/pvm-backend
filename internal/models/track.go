@@ -26,4 +26,5 @@ type Track struct {
 	WorldRecord              int       `json:"world_record"`
 	UpdatedAt                time.Time
 	MappackTrack             []*MappackTrack
+	DominantColor            string `json:"dominantColor" gorm:"column:dominant_color"`
 }

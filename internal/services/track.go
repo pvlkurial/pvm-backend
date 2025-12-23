@@ -5,6 +5,7 @@ import (
 	"example/pvm-backend/internal/clients"
 	"example/pvm-backend/internal/models"
 	"example/pvm-backend/internal/repositories"
+	"example/pvm-backend/internal/utils"
 	"fmt"
 	"time"
 
@@ -58,7 +59,11 @@ func (t *trackService) AddTrackToMappack(trackId string, mappackId string) error
 			if track == nil {
 				return fmt.Errorf("fetch track info: %w", err)
 			}
-
+			color, err := utils.GetDistinctiveColor(track.ThumbnailURL)
+			if err != nil {
+				color = "#000000"
+			}
+			track.DominantColor = color
 			err = t.trackRepository.Create(track)
 			if err != nil {
 				return fmt.Errorf("create track: %w", err)
@@ -72,7 +77,6 @@ func (t *trackService) AddTrackToMappack(trackId string, mappackId string) error
 		MappackID: mappackId,
 		TrackID:   trackId,
 		CreatedAt: time.Now(),
-		Tier:      "",
 	}
 
 	return t.trackRepository.AddTrackToMappack(&mappackTrack)

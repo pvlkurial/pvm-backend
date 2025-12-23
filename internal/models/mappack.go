@@ -8,9 +8,9 @@ type Mappack struct {
 	Name         string `json:"name"`
 	CreatedAt    time.Time
 	UpdatedAt    time.Time
-	IsActive     bool `json:"isActive"`
-	TimeGoals    []*TimeGoal
-	MapStyle     MapStyle `gorm:"foreignKey:Name" json:"mapStyle"`
-	ThumbnailURL string   `json:"thumbnailURL"`
-	Description  string   `json:"description"`
+	IsActive     bool        `json:"isActive"`
+	TimeGoals    []*TimeGoal `gorm:"foreignKey:MappackID" json:"timeGoals"`
+	MapStyle     MapStyle    `gorm:"foreignKey:Name" json:"mapStyle"`
+	ThumbnailURL string      `json:"thumbnailURL"`
+	Description  string      `json:"description"`
 }

@@ -104,6 +104,10 @@ func (t *recordService) GetTrackWithRecords(mappackId string, trackId string) (d
 	if err != nil {
 		return emptyTrack, err
 	}
+	tier := ""
+	if mappackTrack.TierName != nil {
+		tier = *mappackTrack.TierName
+	}
 
 	trackTimeGoals, err := t.recordRepository.GetTrackTimeGoalsTimes(mappackId, trackId)
 	if err != nil {
@@ -140,10 +144,11 @@ func (t *recordService) GetTrackWithRecords(mappackId string, trackId string) (d
 		FileURL:                  trackInDb.FileURL,
 		ThumbnailURL:             trackInDb.ThumbnailURL,
 		Time:                     int(time.Now().Unix()),
-		Tier:                     mappackTrack.Tier,
 		UpdatedAt:                trackInDb.UpdatedAt,
 		Records:                  records,
 		TimeGoals:                timeGoalDtos,
+		DominantColor:            trackInDb.DominantColor,
+		Tier:                     tier,
 	}
 	return track, nil
 }
