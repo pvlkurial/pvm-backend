@@ -12,6 +12,7 @@ type RecordRepository interface {
 	GetByTrackId(id string) ([]models.Record, error)
 	GetPlayersRecordsForTrack(trackId string, playerId string) ([]models.Record, error)
 	GetTrackTimeGoalsTimes(mappackId string, trackId string) ([]models.TimeGoalMappackTrack, error)
+	GetPlayerBestScore(playerID, trackID string) (int, error)
 }
 
 type recordRepository struct {
@@ -58,4 +59,23 @@ func (t *recordRepository) GetTrackTimeGoalsTimes(mappackId string, trackId stri
 	var timeGoals []models.TimeGoalMappackTrack
 	err := t.DB.Preload("TimeGoal").Where("mappack_id = ? AND track_id = ?", mappackId, trackId).Find(&timeGoals).Error
 	return timeGoals, err
+}
+
+func (r *recordRepository) GetPlayerBestScore(playerID, trackID string) (int, error) {
+	var bestScore *int
+	err := r.DB.Model(&models.Record{}).
+		Where("player_id = ? AND track_id = ?", playerID, trackID).
+		Select("MIN(record_time)").
+		Scan(&bestScore).Error
+
+	if err != nil {
+		return 0, err
+	}
+
+	// If no record was found, bestScore will be 0
+	if bestScore == nil {
+		return 0, gorm.ErrRecordNotFound
+	}
+
+	return *bestScore, nil
 }

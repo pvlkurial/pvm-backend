@@ -19,21 +19,24 @@ type RecordService interface {
 }
 
 type recordService struct {
-	recordRepository repositories.RecordRepository
-	playerRepository repositories.PlayerRepository
-	trackRepository  repositories.TrackRepository
-	trackmaniaClient clients.TrackmaniaAPIClient
+	recordRepository   repositories.RecordRepository
+	playerRepository   repositories.PlayerRepository
+	trackRepository    repositories.TrackRepository
+	trackmaniaClient   clients.TrackmaniaAPIClient
+	achievementService *AchievementService
 }
 
 func NewRecordService(recordRepo repositories.RecordRepository,
 	playerRepo repositories.PlayerRepository,
 	trackRepo repositories.TrackRepository,
-	trackmaniaClient clients.TrackmaniaAPIClient) RecordService {
+	trackmaniaClient clients.TrackmaniaAPIClient,
+	achievementService *AchievementService) RecordService {
 	return &recordService{
-		recordRepository: recordRepo,
-		playerRepository: playerRepo,
-		trackRepository:  trackRepo,
-		trackmaniaClient: trackmaniaClient}
+		recordRepository:   recordRepo,
+		playerRepository:   playerRepo,
+		trackRepository:    trackRepo,
+		achievementService: achievementService,
+		trackmaniaClient:   trackmaniaClient}
 }
 
 func (t *recordService) Create(record *models.Record) error {
@@ -56,7 +59,17 @@ func (t *recordService) SaveFetchedRecords(records *[]models.Record) error {
 	if records == nil || len(*records) == 0 {
 		return nil
 	}
+
 	nonFoundPlayers := make([]string, 0)
+	foundTrack, err := t.trackRepository.GetById((*records)[0].TrackID)
+	if err != nil {
+		return fmt.Errorf("error fetching track %s: %w", (*records)[0].TrackID, err)
+	}
+	_, err = t.playerRepository.GetById(foundTrack.Author)
+	if err != nil {
+		nonFoundPlayers = append(nonFoundPlayers, foundTrack.Author)
+	}
+
 	for _, record := range *records {
 		_, err := t.playerRepository.GetById(record.PlayerID)
 		if err != nil {
@@ -76,14 +89,43 @@ func (t *recordService) SaveFetchedRecords(records *[]models.Record) error {
 			}
 			fmt.Printf("Created/updated %d players.\n", len(players))
 		}
+		foundTrack.AuthorName = players[0].Name
 	}
+
+	personalBests := make([]models.Record, 0)
+
 	for _, record := range *records {
-		err := t.recordRepository.Create(&record)
+
+		fmt.Printf("Record saved. Checking if PB for player %s on track %s with time %d\n",
+			record.PlayerID, record.TrackID, record.RecordTime)
+
+		isPB, err := t.isPersonalBest(record.PlayerID, record.TrackID, record.RecordTime)
+		if err != nil {
+			fmt.Printf("Error checking if personal best: %v\n", err)
+			continue
+		}
+		err = t.recordRepository.Create(&record)
 		if err != nil {
 			fmt.Printf("Error creating record for player %s: %v\n", record.PlayerID, err)
 			continue
 		}
+
+		fmt.Printf("Is personal best: %v\n", isPB)
+
+		if isPB {
+			personalBests = append(personalBests, record)
+			fmt.Printf("Added to personal bests list\n")
+		}
 	}
+
+	fmt.Printf("Found %d personal bests\n", len(personalBests))
+
+	if len(personalBests) > 0 {
+		t.checkAchievementsForRecords(personalBests)
+	} else {
+		fmt.Printf("No personal bests to check achievements for\n")
+	}
+
 	return nil
 }
 
@@ -104,10 +146,6 @@ func (t *recordService) GetTrackWithRecords(mappackId string, trackId string) (d
 	if err != nil {
 		return emptyTrack, err
 	}
-	tier := ""
-	if mappackTrack.TierName != nil {
-		tier = *mappackTrack.TierName
-	}
 
 	trackTimeGoals, err := t.recordRepository.GetTrackTimeGoalsTimes(mappackId, trackId)
 	if err != nil {
@@ -120,6 +158,15 @@ func (t *recordService) GetTrackWithRecords(mappackId string, trackId string) (d
 			Name: ttg.TimeGoal.Name,
 			Time: ttg.Time,
 		})
+	}
+
+	var tier models.MappackTier
+	if mappackTrack.Tier != nil {
+		tier = *mappackTrack.Tier
+	} else {
+		tier = models.MappackTier{
+			Name: "Unranked",
+		}
 	}
 
 	track := dtos.TrackInMappackDto{
@@ -151,4 +198,35 @@ func (t *recordService) GetTrackWithRecords(mappackId string, trackId string) (d
 		Tier:                     tier,
 	}
 	return track, nil
+}
+
+func (t *recordService) checkAchievementsForRecords(records []models.Record) {
+	mappackIDs, err := t.trackRepository.GetMappacksForTrack(records[0].TrackID)
+	if err != nil {
+		fmt.Printf("Error getting mappacks for track %s: %v\n", records[0].TrackID, err)
+		return
+	}
+
+	for _, record := range records {
+		for _, mappackID := range mappackIDs {
+			err := t.achievementService.CheckAndUpdateAchievements(
+				record.PlayerID,
+				mappackID,
+				record.TrackID,
+				record.RecordTime,
+			)
+			if err != nil {
+				fmt.Printf("Error checking achievements for player %s on track %s in mappack %s: %v\n",
+					record.PlayerID, record.TrackID, mappackID, err)
+			}
+		}
+	}
+}
+func (t *recordService) isPersonalBest(playerID, trackID string, score int) (bool, error) {
+	bestScore, err := t.recordRepository.GetPlayerBestScore(playerID, trackID)
+	if err != nil {
+		return true, nil
+	}
+
+	return score < bestScore, nil
 }

@@ -6,18 +6,20 @@ import (
 )
 
 type Controllers struct {
-	MappackController MappackController
-	PlayerController  PlayerController
-	RecordController  RecordController
-	TrackController   TrackController
+	MappackController     MappackController
+	PlayerController      PlayerController
+	RecordController      RecordController
+	TrackController       TrackController
+	AchievementController AchievementController
 }
 
 func NewControllers(services services.Services, client *clients.NadeoAPIClient) *Controllers {
-	mappackController := NewMappackController(services.MappackService)
+	mappackController := NewMappackController(services.MappackService, &services.AchievementService)
 	playerController := NewPlayerController(services.PlayerService)
 	recordController := NewRecordController(services.RecordService, services.TracksService, client)
 	trackController := NewTrackController(services.TracksService)
+	achievementController := NewAchievementController(&services.AchievementService)
 
 	return &Controllers{MappackController: *mappackController, PlayerController: *playerController,
-		RecordController: *recordController, TrackController: *trackController}
+		RecordController: *recordController, TrackController: *trackController, AchievementController: *achievementController}
 }

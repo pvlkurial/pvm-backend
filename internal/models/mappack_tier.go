@@ -1,8 +1,9 @@
 package models
 
 type MappackTier struct {
-	Name       string `gorm:"primaryKey" json:"name"`
-	MappackID  string `gorm:"primaryKey" json:"mappack_id"`
-	Multiplier int    `json:"multiplier"`
-	Color      string `json:"color"`
+	ID        int    `gorm:"primaryKey;autoIncrement" json:"id"`
+	Name      string `json:"name"`
+	MappackID string `json:"mappack_id"`
+	Points    int    `json:"points"`
+	Color     string `json:"color"`
 }

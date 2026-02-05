@@ -26,6 +26,7 @@ func ConnectDatabase() *gorm.DB {
 
 func MigrateDatabase(db *gorm.DB) {
 	db.AutoMigrate(&models.MappackTier{})
+	db.AutoMigrate(&models.MappackRank{})
 	db.AutoMigrate(&models.MapStyle{})
 	db.AutoMigrate(&models.Player{})
 	db.AutoMigrate(&models.Mappack{})
@@ -34,6 +35,8 @@ func MigrateDatabase(db *gorm.DB) {
 	db.AutoMigrate(&models.MappackTrack{})
 	db.AutoMigrate(&models.TimeGoal{})
 	db.AutoMigrate(&models.TimeGoalMappackTrack{})
+	db.AutoMigrate(&models.PlayerTimeGoalAchievement{})
+	db.AutoMigrate(&models.MappackLeaderboardEntry{})
 }
 
 func SeedDatabase(db *gorm.DB) {

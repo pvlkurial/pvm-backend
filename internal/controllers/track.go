@@ -95,8 +95,8 @@ func (t *TrackController) CreateTimeGoalsForTrack(c *gin.Context) {
 	mappackId := c.Param("mappack_id")
 	trackId := c.Param("track_id")
 	var request []struct {
-		TimeGoalID int `json:"time_goal_id"`
-		Time       int `json:"time"`
+		ID   int `json:"id"`
+		Time int `json:"time"`
 	}
 
 	if err := c.ShouldBindJSON(&request); err != nil {
@@ -108,7 +108,7 @@ func (t *TrackController) CreateTimeGoalsForTrack(c *gin.Context) {
 	timegoals := make([]models.TimeGoalMappackTrack, len(request))
 	for i, r := range request {
 		timegoals[i] = models.TimeGoalMappackTrack{
-			TimeGoalID: r.TimeGoalID,
+			TimegoalID: r.ID,
 			MappackID:  mappackId,
 			TrackID:    trackId,
 			Time:       r.Time,
@@ -141,12 +141,19 @@ func (t *TrackController) GetTimeGoalsForTrack(c *gin.Context) {
 }
 
 func (t *TrackController) UpdateTimeGoalsForTrack(c *gin.Context) {
+	mappackID := c.Param("mappack_id")
+	trackID := c.Param("track_id")
 	var timegoals []models.TimeGoalMappackTrack
 
 	err := c.ShouldBind(&timegoals)
 	if err != nil {
 		fmt.Printf("Error occured while binding timegoals during update: %s", err)
 		c.String(http.StatusInternalServerError, "Internal Server Error")
+	}
+
+	for i := range timegoals {
+		timegoals[i].MappackID = mappackID
+		timegoals[i].TrackID = trackID
 	}
 
 	err = t.trackService.UpdateTimeGoalsForTrack(&timegoals)

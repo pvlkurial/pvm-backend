@@ -29,7 +29,7 @@ func (r *Routes) InitRoutes() {
 
 	r.Use(cors.New(cors.Config{
 		AllowOrigins:     []string{"*"},
-		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE"},
+		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"},
 		AllowHeaders:     []string{"Origin", "Content-Type", "Authorization"},
 		AllowCredentials: true,
 	}))
@@ -43,9 +43,11 @@ func (r *Routes) InitRoutes() {
 
 	r.POST("/mappacks/:mappack_id/timegoals", controllers.MappackController.CreateMappackTimeGoal)
 	r.GET("/mappacks/:mappack_id/timegoals", controllers.MappackController.GetAllMappackTimeGoals)
-	r.DELETE("/mappacks/:mappack_id/timegoals/:timegoal_id", controllers.MappackController.RemoveTimeGoalFromMappack)
+	r.PUT("/mappacks/:mappack_id/timegoals", controllers.MappackController.UpdateMappackTimeGoals)
+	//r.DELETE("/mappacks/:mappack_id/timegoals/:timegoal_id", controllers.MappackController.RemoveTimeGoalFromMappack)
 
 	r.POST("/mappacks", controllers.MappackController.Create)
+	r.PUT("/mappacks", controllers.MappackController.Update)
 	r.GET("/mappacks", controllers.MappackController.GetAll)
 	r.GET("/mappacks/:mappack_id", controllers.MappackController.GetById)
 
@@ -63,6 +65,16 @@ func (r *Routes) InitRoutes() {
 	r.POST("/tracks/track_id/records/:player_id", controllers.RecordController.GetPlayersRecordsForTrack)
 
 	r.GET("mappacks/:mappack_id/tracks/:track_id", controllers.RecordController.GetTrackWithRecords)
+
+	r.GET("/mappacks/:mappack_id/leaderboard", controllers.AchievementController.GetMappackLeaderboard)
+	r.GET("/mappacks/:mappack_id/players/:player_id/achievements", controllers.AchievementController.GetPlayerAchievements)
+	r.GET("/mappacks/:mappack_id/players/:player_id/rank", controllers.AchievementController.GetPlayerRank)
+	r.GET("/mappacks/:mappack_id/players/:player_id/leaderboard-entry", controllers.AchievementController.GetPlayerLeaderboardEntry)
+
+	r.POST("/mappacks/:mappack_id/recalculate-achievements", controllers.AchievementController.RecalculateMappackAchievements)
+	r.DELETE("/mappacks/:mappack_id/timegoals/:id", controllers.MappackController.DeleteTimeGoal)
+	r.DELETE("/mappacks/:mappack_id/tiers/:id", controllers.MappackController.DeleteTier)
+	r.DELETE("/mappacks/:mappack_id/ranks/:id", controllers.MappackController.DeleteRank)
 
 	r.Run("localhost:8080")
 }

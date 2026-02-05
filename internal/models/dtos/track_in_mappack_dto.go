@@ -12,6 +12,7 @@ type TrackInMappackDto struct {
 	MapUID                   string             `json:"mapUid"`
 	Name                     string             `json:"name"`
 	Author                   string             `json:"author"`
+	AuthorName               string             `json:"authorName"`
 	Submitter                string             `json:"submitter"`
 	AuthorScore              int                `json:"authorScore"`
 	GoldScore                int                `json:"goldScore"`
@@ -28,7 +29,7 @@ type TrackInMappackDto struct {
 	FileURL                  string             `json:"fileUrl"`
 	ThumbnailURL             string             `json:"thumbnailUrl"`
 	Time                     int                `json:"time"`
-	Tier                     string             `json:"tier"`
+	Tier                     models.MappackTier `json:"tier"`
 	DominantColor            string             `json:"dominantColor"`
 	UpdatedAt                time.Time          `json:"updatedAt"`
 	Records                  []models.Record    `json:"records,omitempty"`

@@ -2,6 +2,8 @@ package repositories
 
 import (
 	"example/pvm-backend/internal/models"
+	"log"
+	"reflect"
 
 	"gorm.io/gorm"
 )
@@ -19,6 +21,9 @@ type TrackRepository interface {
 	GetTrackInMappackInfo(mappackId string, trackId string) (models.MappackTrack, error)
 	GetByUID(uid string) (models.Track, error)
 	SavePlayerMappackTrack(playerMappackTrack *models.PlayerMappackTrack) error
+	GetMappacksForTrack(trackID string) ([]string, error)
+	GetTrackTimeGoals(mappackID, trackID string) ([]models.TimeGoalMappackTrack, error)
+	GetTracksInMappack(mappackID string) ([]models.MappackTrack, error)
 }
 
 type trackRepository struct {
@@ -77,7 +82,7 @@ func (t *trackRepository) UpdateTimeGoalsForTrack(timegoals *[]models.TimeGoalMa
 }
 func (t *trackRepository) GetTrackInMappackInfo(mappackId string, trackId string) (models.MappackTrack, error) {
 	mappackTrack := models.MappackTrack{}
-	err := t.db.Where("mappack_id = ? AND track_id = ?", mappackId, trackId).First(&mappackTrack).Error
+	err := t.db.Preload("Tier").Where("mappack_id = ? AND track_id = ?", mappackId, trackId).First(&mappackTrack).Error
 	return mappackTrack, err
 }
 
@@ -89,4 +94,47 @@ func (t *trackRepository) GetByUID(uid string) (models.Track, error) {
 
 func (t *trackRepository) SavePlayerMappackTrack(playerMappackTrack *models.PlayerMappackTrack) error {
 	return t.db.Save(playerMappackTrack).Error
+}
+func (t *trackRepository) GetMappacksForTrack(trackID string) ([]string, error) {
+	var mappackIDs []string
+	err := t.db.Model(&models.MappackTrack{}).
+		Where("track_id = ?", trackID).
+		Pluck("mappack_id", &mappackIDs).Error
+	return mappackIDs, err
+}
+
+func (t *trackRepository) GetTrackTimeGoals(mappackID, trackID string) ([]models.TimeGoalMappackTrack, error) {
+	var timeGoals []models.TimeGoalMappackTrack
+
+	// ✅ Add debug logging
+	log.Printf("GetTrackTimeGoals called with mappackID=%s, trackID=%s", mappackID, trackID)
+
+	// ✅ Log the table name being used
+	tableName := t.db.NamingStrategy.TableName(reflect.TypeOf(models.TimeGoalMappackTrack{}).Name())
+	log.Printf("Using table name: %s", tableName)
+
+	err := t.db.
+		Preload("TimeGoal").
+		Where("mappack_id = ? AND track_id = ?", mappackID, trackID).
+		Find(&timeGoals).Error
+
+	// ✅ Log the query result
+	log.Printf("Query returned %d time goals, error: %v", len(timeGoals), err)
+
+	if err != nil {
+		log.Printf("ERROR in GetTrackTimeGoals: %v", err)
+		return nil, err
+	}
+
+	// ✅ Log what was found
+	for i, tg := range timeGoals {
+		log.Printf("  [%d] TimeGoalID=%d, Time=%d", i, tg.TimegoalID, tg.Time)
+	}
+
+	return timeGoals, err
+}
+func (t *trackRepository) GetTracksInMappack(mappackID string) ([]models.MappackTrack, error) {
+	var tracks []models.MappackTrack
+	err := t.db.Where("mappack_id = ?", mappackID).Find(&tracks).Error
+	return tracks, err
 }

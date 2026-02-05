@@ -8,6 +8,7 @@ type Track struct {
 	MapUID                   string    `json:"mapUid"`
 	Name                     string    `json:"name"`
 	Author                   string    `json:"author"`
+	AuthorName               string    `json:"authorName"`
 	Submitter                string    `json:"submitter"`
 	AuthorScore              int       `json:"authorScore"`
 	GoldScore                int       `json:"goldScore"`
