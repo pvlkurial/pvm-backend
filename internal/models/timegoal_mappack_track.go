@@ -10,4 +10,7 @@ type TimeGoalMappackTrack struct {
 	TimeGoal   TimeGoal `gorm:"foreignKey:TimegoalID;references:ID" json:"timeGoal"`
 	Time       int      `json:"time"`
 	UpdatedAt  time.Time
+
+	IsAchieved bool `gorm:"-" json:"is_achieved"`
+	PlayerTime *int `gorm:"-" json:"player_time,omitempty"`
 }

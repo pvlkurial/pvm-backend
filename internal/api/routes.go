@@ -3,6 +3,7 @@ package api
 import (
 	"example/pvm-backend/internal/clients"
 	"example/pvm-backend/internal/controllers"
+	"example/pvm-backend/internal/middleware"
 	"example/pvm-backend/internal/repositories"
 	"example/pvm-backend/internal/services"
 	"example/pvm-backend/internal/workers"
@@ -21,7 +22,7 @@ func (r *Routes) InitRoutes() {
 	nadeoClient := clients.NewNadeoAPIClient()
 	trackmaniaClient := clients.NewTrackmaniaAPIClient()
 	repositories := repositories.NewRepositories(r.DB)
-	services := services.NewServices(*repositories, nadeoClient, *trackmaniaClient)
+	services := services.NewServices(*repositories, nadeoClient, *trackmaniaClient, r.DB)
 	controllers := controllers.NewControllers(*services, nadeoClient)
 
 	workers := workers.NewWorkers(*services, *nadeoClient)
@@ -33,6 +34,19 @@ func (r *Routes) InitRoutes() {
 		AllowHeaders:     []string{"Origin", "Content-Type", "Authorization"},
 		AllowCredentials: true,
 	}))
+
+	auth := r.Group("/auth")
+	{
+		auth.GET("/login", controllers.AuthController.Login)
+		auth.POST("/callback", controllers.AuthController.Callback)
+	}
+
+	authorized := r.Group("/")
+	authorized.Use(middleware.AuthMiddleware(&services.AuthService))
+	{
+		authorized.GET("/auth/me", controllers.AuthController.Me)
+		// ... other protected routes
+	}
 
 	r.POST("/tracks", controllers.TrackController.Create)
 	r.GET("/tracks/:track_id", controllers.TrackController.GetById)

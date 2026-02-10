@@ -25,6 +25,7 @@ func ConnectDatabase() *gorm.DB {
 }
 
 func MigrateDatabase(db *gorm.DB) {
+	db.AutoMigrate(&models.User{})
 	db.AutoMigrate(&models.MappackTier{})
 	db.AutoMigrate(&models.MappackRank{})
 	db.AutoMigrate(&models.MapStyle{})

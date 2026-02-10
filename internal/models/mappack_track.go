@@ -11,4 +11,5 @@ type MappackTrack struct {
 	TierID               *int         `json:"tier_id"`
 	Tier                 *MappackTier `gorm:"foreignKey:TierID;references:ID" json:"tier"`
 	MapStyle             *string      `json:"mapStyle"`
+	PersonalBest         int          `gorm:"-" json:"personal_best,omitempty"`
 }

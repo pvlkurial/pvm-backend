@@ -135,7 +135,7 @@ func (t *RecordController) GetTrackWithRecords(c *gin.Context) {
 	trackId := c.Param("track_id")
 	mappack_id := c.Param("mappack_id")
 	var track dtos.TrackInMappackDto
-	track, err := t.recordService.GetTrackWithRecords(mappack_id, trackId)
+	track, err := t.recordService.GetTrackWithRecords(mappack_id, trackId, nil)
 	if err != nil {
 		fmt.Printf("Error occurred while creating a Record: %s\n", err)
 		c.String(http.StatusInternalServerError, "Internal Server Error")

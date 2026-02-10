@@ -44,7 +44,8 @@ func (t *MappackController) Create(c *gin.Context) {
 
 func (t *MappackController) GetById(c *gin.Context) {
 	id := c.Param("mappack_id")
-	result, err := t.mappackService.GetById(id)
+	playerID := c.Query("player_id")
+	result, err := t.mappackService.GetByIdWithAchievements(id, &playerID)
 	if err != nil {
 		fmt.Printf("Error occured while getting a Mappack by id: %s", err)
 		c.String(http.StatusInternalServerError, "Internal Server Error")
@@ -154,7 +155,6 @@ func (c *MappackController) DeleteTimeGoal(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, gin.H{"message": "Time goal deleted"})
 }
 
-// DELETE /mappacks/:mappack_id/tiers/:id
 func (c *MappackController) DeleteTier(ctx *gin.Context) {
 	id, err := strconv.Atoi(ctx.Param("id"))
 	if err != nil {
@@ -170,7 +170,6 @@ func (c *MappackController) DeleteTier(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, gin.H{"message": "Tier deleted"})
 }
 
-// DELETE /mappacks/:mappack_id/ranks/:id
 func (c *MappackController) DeleteRank(ctx *gin.Context) {
 	id, err := strconv.Atoi(ctx.Param("id"))
 	if err != nil {

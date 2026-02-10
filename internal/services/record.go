@@ -15,7 +15,7 @@ type RecordService interface {
 	GetByTrackId(id string) ([]models.Record, error)
 	GetPlayersRecordsForTrack(trackId string, playerId string) ([]models.Record, error)
 	SaveFetchedRecords(records *[]models.Record) error
-	GetTrackWithRecords(mappackId string, trackId string) (dtos.TrackInMappackDto, error)
+	GetTrackWithRecords(mappackId string, trackId string, playerID *string) (dtos.TrackInMappackDto, error)
 }
 
 type recordService struct {
@@ -129,7 +129,7 @@ func (t *recordService) SaveFetchedRecords(records *[]models.Record) error {
 	return nil
 }
 
-func (t *recordService) GetTrackWithRecords(mappackId string, trackId string) (dtos.TrackInMappackDto, error) {
+func (t *recordService) GetTrackWithRecords(mappackId string, trackId string, playerID *string) (dtos.TrackInMappackDto, error) {
 	emptyTrack := dtos.TrackInMappackDto{}
 
 	trackInDb, err := t.trackRepository.GetById(trackId)
@@ -152,12 +152,35 @@ func (t *recordService) GetTrackWithRecords(mappackId string, trackId string) (d
 		return emptyTrack, err
 	}
 
+	var playerAchievements map[int]*models.PlayerTimeGoalAchievement
+	if playerID != nil && *playerID != "" {
+		achievements, err := t.achievementService.GetPlayerAchievementsByTrack(*playerID, mappackId, trackId)
+		if err == nil {
+			playerAchievements = make(map[int]*models.PlayerTimeGoalAchievement)
+			for _, ach := range achievements {
+				achCopy := ach
+				playerAchievements[ach.TimeGoalID] = &achCopy
+			}
+		}
+	}
+
 	timeGoalDtos := make([]dtos.TrackTimeGoalDto, 0, len(trackTimeGoals))
 	for _, ttg := range trackTimeGoals {
-		timeGoalDtos = append(timeGoalDtos, dtos.TrackTimeGoalDto{
-			Name: ttg.TimeGoal.Name,
-			Time: ttg.Time,
-		})
+		dto := dtos.TrackTimeGoalDto{
+			TimeGoalID: ttg.TimegoalID,
+			Name:       ttg.TimeGoal.Name,
+			Time:       ttg.Time,
+			IsAchieved: false,
+		}
+
+		if playerAchievements != nil {
+			if ach, exists := playerAchievements[ttg.TimegoalID]; exists {
+				dto.IsAchieved = true
+				dto.PlayerTime = &ach.PlayerTime
+			}
+		}
+
+		timeGoalDtos = append(timeGoalDtos, dto)
 	}
 
 	var tier models.MappackTier

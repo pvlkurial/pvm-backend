@@ -175,7 +175,6 @@ func (r *achievementRepository) GetPlayerBestTimesForTrack(trackID string) (map[
 		return nil, err
 	}
 
-	// Convert to map
 	playerBestTimes := make(map[string]int)
 	for _, result := range results {
 		playerBestTimes[result.PlayerID] = result.BestTime
