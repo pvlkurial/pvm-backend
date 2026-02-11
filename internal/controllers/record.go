@@ -134,11 +134,51 @@ func (t *RecordController) FetchNewTrackRecords(c *gin.Context) {
 func (t *RecordController) GetTrackWithRecords(c *gin.Context) {
 	trackId := c.Param("track_id")
 	mappack_id := c.Param("mappack_id")
+	playerID := c.Query("player_id")
 	var track dtos.TrackInMappackDto
-	track, err := t.recordService.GetTrackWithRecords(mappack_id, trackId, nil)
+	track, err := t.recordService.GetTrackWithRecords(mappack_id, trackId, &playerID)
 	if err != nil {
 		fmt.Printf("Error occurred while creating a Record: %s\n", err)
 		c.String(http.StatusInternalServerError, "Internal Server Error")
 	}
 	c.JSON(http.StatusOK, track)
+}
+
+func (t *RecordController) FetchPlayersRecordsForTrack(c *gin.Context) {
+	trackId := c.Param("track_id")
+	playerId := c.Param("player_id")
+	track, err := t.trackService.GetById(trackId)
+
+	if err != nil {
+		fmt.Printf("Error occurred while fetching Track by ID: %s\n", err)
+		c.String(http.StatusInternalServerError, "Internal Server Error")
+		return
+	}
+
+	record, err := t.client.FetchRecordsOfTrackForPlayer(track.ID, playerId, track.MapUID)
+
+	if err != nil {
+		fmt.Println("Failed to fetch records")
+		c.String(http.StatusInternalServerError, "Failed to fetch records")
+		return
+	}
+
+	record.ID = fmt.Sprintf("%s_%s", track.ID, record.PlayerID)
+	record.UpdatedAt = time.Now()
+	records := []models.Record{record}
+
+	err = t.recordService.SaveFetchedRecords(&records)
+
+	if err == nil {
+		c.String(http.StatusOK, "No records to save")
+		return
+	}
+
+	if err != nil {
+		fmt.Printf("Error occurred while creating a Record: %s\n", err)
+		c.String(http.StatusInternalServerError, "Internal Server Error")
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "Records saved successfully", "count": len(records)})
 }

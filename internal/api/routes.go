@@ -45,38 +45,63 @@ func (r *Routes) InitRoutes() {
 	authorized.Use(middleware.AuthMiddleware(&services.AuthService))
 	{
 		authorized.GET("/auth/me", controllers.AuthController.Me)
-		// ... other protected routes
 	}
 
-	r.POST("/tracks", controllers.TrackController.Create)
-	r.GET("/tracks/:track_id", controllers.TrackController.GetById)
-	r.DELETE("/tracks/:track_id")
+	adminAccess := r.Group("/")
+	adminAccess.Use(middleware.AdminOnly())
+	{
+		// Tracks (Dev only)
+		r.POST("/tracks", controllers.TrackController.Create)
+		r.DELETE("/tracks/:track_id")
 
-	r.POST("/players", controllers.PlayerController.Create)
+		// Mappacks
+		r.POST("/mappacks", controllers.MappackController.Create)
+		r.PUT("/mappacks", controllers.MappackController.Update)
+
+		// Mappack Timegoals
+		r.POST("/mappacks/:mappack_id/timegoals", controllers.MappackController.CreateMappackTimeGoal)
+		r.PUT("/mappacks/:mappack_id/timegoals", controllers.MappackController.UpdateMappackTimeGoals)
+
+		// Mappack Tracks
+		r.POST("/mappacks/:mappack_id/tracks/:track_id", controllers.TrackController.AddTrackToMappack)
+		r.DELETE("/mappacks/:mappack_id/tracks/:track_id", controllers.TrackController.RemoveTrackFromMappack)
+
+		// Mappack Track Timegoals (the actual times)
+		r.POST("/mappacks/:mappack_id/tracks/:track_id/timegoals", controllers.TrackController.CreateTimeGoalsForTrack)
+		r.PATCH("/mappacks/:mappack_id/tracks/:track_id/timegoals", controllers.TrackController.UpdateTimeGoalsForTrack)
+		r.DELETE("/mappacks/:mappack_id/timegoals/:id", controllers.MappackController.DeleteTimeGoal)
+
+		// Records
+		r.POST("/records", controllers.RecordController.Create)
+		r.POST("/tracks/:track_id/records", controllers.RecordController.FetchNewTrackRecords)
+		r.POST("/tracks/:track_id/records/:player_id", controllers.RecordController.GetPlayersRecordsForTrack)
+		r.POST("/tracks/:track_id/records/:player_id/fetch", controllers.RecordController.FetchPlayersRecordsForTrack)
+		// Achievements
+		r.POST("/mappacks/:mappack_id/recalculate-achievements", controllers.AchievementController.RecalculateMappackAchievements)
+
+		// Tiers and Ranks
+		r.DELETE("/mappacks/:mappack_id/tiers/:id", controllers.MappackController.DeleteTier)
+		r.DELETE("/mappacks/:mappack_id/ranks/:id", controllers.MappackController.DeleteRank)
+
+		// Players (Dev only)
+		r.POST("/players", controllers.PlayerController.Create)
+	}
+
+	r.GET("/tracks/:track_id", controllers.TrackController.GetById)
+
 	r.GET("/players", controllers.PlayerController.GetAll)
 
-	r.POST("/mappacks/:mappack_id/timegoals", controllers.MappackController.CreateMappackTimeGoal)
 	r.GET("/mappacks/:mappack_id/timegoals", controllers.MappackController.GetAllMappackTimeGoals)
-	r.PUT("/mappacks/:mappack_id/timegoals", controllers.MappackController.UpdateMappackTimeGoals)
 	//r.DELETE("/mappacks/:mappack_id/timegoals/:timegoal_id", controllers.MappackController.RemoveTimeGoalFromMappack)
 
-	r.POST("/mappacks", controllers.MappackController.Create)
-	r.PUT("/mappacks", controllers.MappackController.Update)
 	r.GET("/mappacks", controllers.MappackController.GetAll)
 	r.GET("/mappacks/:mappack_id", controllers.MappackController.GetById)
 
 	r.GET("/mappacks/:mappack_id/tracks", controllers.TrackController.GetByMappackId)
-	r.POST("/mappacks/:mappack_id/tracks/:track_id", controllers.TrackController.AddTrackToMappack)
-	r.DELETE("/mappacks/:mappack_id/tracks/:track_id", controllers.TrackController.RemoveTrackFromMappack)
 
-	r.POST("/mappacks/:mappack_id/tracks/:track_id/timegoals", controllers.TrackController.CreateTimeGoalsForTrack)
 	r.GET("/mappacks/:mappack_id/tracks/:track_id/timegoals", controllers.TrackController.GetTimeGoalsForTrack)
-	r.PATCH("/mappacks/:mappack_id/tracks/:track_id/timegoals", controllers.TrackController.UpdateTimeGoalsForTrack)
 
-	r.POST("/records", controllers.RecordController.Create)
-	r.POST("/tracks/:track_id/records", controllers.RecordController.FetchNewTrackRecords)
 	r.GET("/tracks/:track_id/records", controllers.RecordController.GetByTrackId)
-	r.POST("/tracks/track_id/records/:player_id", controllers.RecordController.GetPlayersRecordsForTrack)
 
 	r.GET("mappacks/:mappack_id/tracks/:track_id", controllers.RecordController.GetTrackWithRecords)
 
@@ -84,11 +109,6 @@ func (r *Routes) InitRoutes() {
 	r.GET("/mappacks/:mappack_id/players/:player_id/achievements", controllers.AchievementController.GetPlayerAchievements)
 	r.GET("/mappacks/:mappack_id/players/:player_id/rank", controllers.AchievementController.GetPlayerRank)
 	r.GET("/mappacks/:mappack_id/players/:player_id/leaderboard-entry", controllers.AchievementController.GetPlayerLeaderboardEntry)
-
-	r.POST("/mappacks/:mappack_id/recalculate-achievements", controllers.AchievementController.RecalculateMappackAchievements)
-	r.DELETE("/mappacks/:mappack_id/timegoals/:id", controllers.MappackController.DeleteTimeGoal)
-	r.DELETE("/mappacks/:mappack_id/tiers/:id", controllers.MappackController.DeleteTier)
-	r.DELETE("/mappacks/:mappack_id/ranks/:id", controllers.MappackController.DeleteRank)
 
 	r.Run("localhost:8080")
 }

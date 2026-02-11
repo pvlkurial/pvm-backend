@@ -136,7 +136,6 @@ func (r *mappackRepository) DeleteAllTimeGoalTracks(mappackID, trackID string) e
 	return r.db.Where("mappack_id = ? AND track_id = ?", mappackID, trackID).Delete(&models.TimeGoalMappackTrack{}).Error
 }
 func (r *mappackRepository) DeleteTimeGoal(id int) error {
-	// Start transaction
 	tx := r.db.Begin()
 	if tx.Error != nil {
 		return tx.Error
@@ -147,31 +146,25 @@ func (r *mappackRepository) DeleteTimeGoal(id int) error {
 		}
 	}()
 
-	// 1. Delete from time_goal_mappack_tracks
 	if err := tx.Table("time_goal_mappack_tracks").Where("timegoal_id = ?", id).Delete(&models.TimeGoalMappackTrack{}).Error; err != nil {
 		tx.Rollback()
 		return err
 	}
 
-	// 2. Delete from player_time_goal_achievements
-	// Check your DB schema for the exact column name - might be "time_goal_id" or "timegoal_id"
 	if err := tx.Table("player_time_goal_achievements").Where("time_goal_id = ?", id).Delete(&models.PlayerTimeGoalAchievement{}).Error; err != nil {
 		tx.Rollback()
 		return err
 	}
 
-	// 3. Finally delete the time goal itself
 	if err := tx.Delete(&models.TimeGoal{}, id).Error; err != nil {
 		tx.Rollback()
 		return err
 	}
 
-	// Commit transaction
 	return tx.Commit().Error
 }
 
 func (r *mappackRepository) DeleteTier(id int) error {
-	// Start transaction
 	tx := r.db.Begin()
 	if tx.Error != nil {
 		return tx.Error
@@ -182,23 +175,19 @@ func (r *mappackRepository) DeleteTier(id int) error {
 		}
 	}()
 
-	// 1. First remove tier references from mappack_tracks (set tier_id to NULL)
 	if err := tx.Table("mappack_tracks").Where("tier_id = ?", id).Update("tier_id", nil).Error; err != nil {
 		tx.Rollback()
 		return err
 	}
 
-	// 2. Then delete the tier itself
 	if err := tx.Delete(&models.MappackTier{}, id).Error; err != nil {
 		tx.Rollback()
 		return err
 	}
 
-	// Commit transaction
 	return tx.Commit().Error
 }
 
 func (r *mappackRepository) DeleteRank(id int) error {
-	// Ranks don't have foreign key references, so simple delete
 	return r.db.Delete(&models.MappackRank{}, id).Error
 }

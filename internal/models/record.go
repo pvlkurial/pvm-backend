@@ -25,3 +25,14 @@ type TrackRecordsResponse struct {
 		Top      []Record `json:"top"`
 	} `json:"tops"`
 }
+
+type RecordScore struct {
+	RespawnCount int `json:"respawnCount"`
+	Score        int `json:"score"`
+	Time         int `json:"time"`
+}
+
+type PlayerRecordResponse struct {
+	RecordScore RecordScore `json:"recordScore"`
+	//Timestamp   string      `json:"timestamp" gorm:"column:timestamp"`
+}

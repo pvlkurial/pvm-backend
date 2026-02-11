@@ -13,4 +13,5 @@ const (
 	FetchIntervalDelayInSeconds    = 2
 	NadeoOAuthTokenURL             = "https://api.trackmania.com/api/access_token"
 	NadeoAPIBaseURL                = "https://api.trackmania.com/api"
+	GetMapRecordByAccountURL       = "https://prod.trackmania.core.nadeo.online/v2/mapRecords/"
 )

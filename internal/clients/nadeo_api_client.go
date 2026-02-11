@@ -240,3 +240,51 @@ func (t *NadeoAPIClient) FetchRecordsOfTrack(trackuid string, length int, offset
 	return records, nil
 
 }
+
+func (t *NadeoAPIClient) FetchRecordsOfTrackForPlayer(trackID string, playerId string, trackUID string) (models.Record, error) {
+	// First request - get player's record time
+	url := fmt.Sprintf("%sby-account/?accountIdList=%s&mapId=%s",
+		constants.GetMapRecordByAccountURL, playerId, trackID)
+	req, err := http.NewRequest("GET", url, nil)
+	if err != nil {
+		return models.Record{}, fmt.Errorf("create request: %w", err)
+	}
+
+	resp, err := t.DoAuthenticatedRequest(req, constants.NadeoServices)
+	if err != nil {
+		fmt.Println(err)
+		return models.Record{}, err
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		fmt.Printf("failed to fetch records: status %d\n", resp.StatusCode)
+		return models.Record{}, fmt.Errorf("unexpected status code: %d", resp.StatusCode)
+	}
+
+	var response []models.PlayerRecordResponse
+	if err := json.NewDecoder(resp.Body).Decode(&response); err != nil {
+		fmt.Printf("failed to decode records: %v\n", err)
+		return models.Record{}, err
+	}
+
+	if len(response) == 0 {
+		return models.Record{}, fmt.Errorf("no records found for player")
+	}
+
+	// Extract position and zone info
+	position := 0
+	zoneID := "-"
+	zoneName := "World"
+
+	record := models.Record{
+		PlayerID:   playerId,
+		TrackID:    trackID,
+		RecordTime: response[0].RecordScore.Time,
+		Position:   position,
+		ZoneID:     zoneID,
+		ZoneName:   zoneName,
+	}
+
+	return record, nil
+}

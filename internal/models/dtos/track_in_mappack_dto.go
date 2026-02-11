@@ -34,4 +34,5 @@ type TrackInMappackDto struct {
 	UpdatedAt                time.Time          `json:"updatedAt"`
 	Records                  []models.Record    `json:"records,omitempty"`
 	TimeGoals                []TrackTimeGoalDto `json:"timegoals"`
+	PersonalBest             int                `json:"personalBest,omitempty"`
 }

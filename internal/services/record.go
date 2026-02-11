@@ -192,12 +192,18 @@ func (t *recordService) GetTrackWithRecords(mappackId string, trackId string, pl
 		}
 	}
 
+	personalBest, err := t.recordRepository.GetPlayerBestScore(*playerID, trackId)
+	if err != nil {
+		personalBest = 0
+	}
+	authorName, _ := t.playerRepository.GetById(trackInDb.Author)
+
 	track := dtos.TrackInMappackDto{
 		ID:                       trackInDb.ID,
 		MapID:                    trackInDb.MapID,
 		MapUID:                   trackInDb.MapUID,
 		Name:                     trackInDb.Name,
-		Author:                   trackInDb.Author,
+		Author:                   authorName.Name,
 		Submitter:                trackInDb.Submitter,
 		AuthorScore:              trackInDb.AuthorScore,
 		GoldScore:                trackInDb.GoldScore,
@@ -219,6 +225,7 @@ func (t *recordService) GetTrackWithRecords(mappackId string, trackId string, pl
 		TimeGoals:                timeGoalDtos,
 		DominantColor:            trackInDb.DominantColor,
 		Tier:                     tier,
+		PersonalBest:             personalBest,
 	}
 	return track, nil
 }

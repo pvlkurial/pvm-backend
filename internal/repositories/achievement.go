@@ -183,7 +183,6 @@ func (r *achievementRepository) GetPlayerBestTimesForTrack(trackID string) (map[
 	return playerBestTimes, nil
 }
 
-// DeleteMappackAchievements deletes all achievements for a mappack (for clean recalculation)
 func (r *achievementRepository) DeleteMappackAchievements(mappackID string) error {
 	return r.db.Where("mappack_id = ?", mappackID).Delete(&models.PlayerTimeGoalAchievement{}).Error
 }
